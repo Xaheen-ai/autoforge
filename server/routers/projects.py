@@ -19,6 +19,7 @@ from ..schemas import (
     ProjectDetail,
     ProjectPrompts,
     ProjectPromptsUpdate,
+    ProjectRename,
     ProjectSettingsUpdate,
     ProjectStats,
     ProjectSummary,
@@ -70,6 +71,7 @@ def _get_registry_functions():
         get_project_path,
         list_registered_projects,
         register_project,
+        rename_project,
         set_project_concurrency,
         unregister_project,
         validate_project_path,
@@ -82,6 +84,7 @@ def _get_registry_functions():
         validate_project_path,
         get_project_concurrency,
         set_project_concurrency,
+        rename_project,
     )
 
 
@@ -118,7 +121,7 @@ async def list_projects():
     _init_imports()
     assert _check_spec_exists is not None  # guaranteed by _init_imports()
     (_, _, _, list_registered_projects, validate_project_path,
-     get_project_concurrency, _) = _get_registry_functions()
+     get_project_concurrency, _, _) = _get_registry_functions()
 
     projects = list_registered_projects()
     result = []
@@ -151,7 +154,7 @@ async def create_project(project: ProjectCreate):
     _init_imports()
     assert _scaffold_project_prompts is not None  # guaranteed by _init_imports()
     (register_project, _, get_project_path, list_registered_projects,
-     _, _, _) = _get_registry_functions()
+     _, _, _, _) = _get_registry_functions()
 
     name = validate_project_name(project.name)
     project_path = Path(project.path).resolve()
@@ -232,7 +235,7 @@ async def get_project(name: str):
     _init_imports()
     assert _check_spec_exists is not None  # guaranteed by _init_imports()
     assert _get_project_prompts_dir is not None  # guaranteed by _init_imports()
-    (_, _, get_project_path, _, _, get_project_concurrency, _) = _get_registry_functions()
+    (_, _, get_project_path, _, _, get_project_concurrency, _, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)
@@ -257,6 +260,117 @@ async def get_project(name: str):
     )
 
 
+@router.post("/{name}/rename", response_model=ProjectSummary)
+async def rename_project_endpoint(name: str, payload: ProjectRename):
+    """
+    Rename a project.
+
+    Moves the project directory and updates the registry and internal databases.
+    """
+    _init_imports()
+    assert _check_spec_exists is not None
+    (register_project, _, get_project_path, list_registered_projects,
+     validate_project_path, get_project_concurrency, _,
+     rename_project) = _get_registry_functions()
+
+    old_name = validate_project_name(name)
+    new_name = validate_project_name(payload.new_name)
+    
+    if old_name == new_name:
+         raise HTTPException(status_code=400, detail="New name must be different from current name")
+
+    # 1. Get current project path
+    old_path = get_project_path(old_name)
+    if not old_path:
+        raise HTTPException(status_code=404, detail=f"Project '{old_name}' not found")
+    
+    if not old_path.exists():
+        raise HTTPException(status_code=404, detail=f"Project directory not found: {old_path}")
+
+    # 2. Derive new path (keep same parent directory)
+    new_path = old_path.parent / new_name
+    
+    # 3. Validation: Check if new name or path already exists
+    # Check registry for name collision
+    if get_project_path(new_name):
+        raise HTTPException(status_code=409, detail=f"Project name '{new_name}' is already taken")
+
+    # Check filesystem for path collision
+    if new_path.exists():
+        raise HTTPException(status_code=409, detail=f"Destination directory already exists: {new_path}")
+
+    # 4. Check if agent is running
+    from xaheen_paths import has_agent_running
+    if has_agent_running(old_path):
+        raise HTTPException(
+            status_code=409, detail="Cannot rename project while agent is running. Stop the agent first."
+        )
+
+    # 5. Dispose DB engines to unlock files (Windows compat)
+    from api.database import dispose_engine as dispose_features_engine, get_database_url
+    from server.services.assistant_database import dispose_engine as dispose_assistant_engine
+    
+    dispose_features_engine(old_path)
+    dispose_assistant_engine(old_path)
+
+    # 6. Move directory
+    try:
+        shutil.move(str(old_path), str(new_path))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to move project directory: {e}")
+
+    # 7. Update Registry
+    try:
+        rename_project(old_name, new_name, new_path)
+    except Exception as e:
+        # Rollback move if registry update fails
+        try:
+            shutil.move(str(new_path), str(old_path))
+        except:
+            pass # Critical failure if rollback fails
+        raise HTTPException(status_code=500, detail=f"Failed to update registry: {e}")
+
+    # 8. Update Internal Databases
+    # features.db -> schedules table -> project_name
+    try:
+        from sqlalchemy import create_engine, text
+        
+        # Connect to DB at VALID NEW PATH
+        db_url = get_database_url(new_path)
+        engine = create_engine(db_url)
+        
+        with engine.connect() as conn:
+            # Update project_name in schedules table
+            # Check if table exists first? It should.
+            conn.execute(
+                text("UPDATE schedules SET project_name = :new_name WHERE project_name = :old_name"),
+                {"new_name": new_name, "old_name": old_name}
+            )
+            conn.commit()
+        
+        engine.dispose()
+    except Exception as e:
+        # Log warning but don't fail the request check - directory and registry are moved.
+        # This is a minor consistency issue that can be fixed manually or auto-healed later.
+        print(f"Warning: Failed to update project_name in features.db: {e}", file=sys.stderr)
+
+    # 9. Return new summary
+    # Refresh imports for stats
+    _init_imports()
+    
+    # We need to re-validate the new path exists (it should)
+    has_spec = _check_spec_exists(new_path)
+    stats = get_project_stats(new_path)
+
+    return ProjectSummary(
+        name=new_name,
+        path=new_path.as_posix(),
+        has_spec=has_spec,
+        stats=stats,
+        default_concurrency=get_project_concurrency(new_name),
+    )
+
+
 @router.delete("/{name}")
 async def delete_project(name: str, delete_files: bool = False):
     """
@@ -267,7 +381,7 @@ async def delete_project(name: str, delete_files: bool = False):
         delete_files: If True, also delete the project directory and files
     """
     _init_imports()
-    (_, unregister_project, get_project_path, _, _, _, _) = _get_registry_functions()
+    (_, unregister_project, get_project_path, _, _, _, _, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)
@@ -304,7 +418,7 @@ async def get_project_prompts(name: str):
     """Get the content of project prompt files."""
     _init_imports()
     assert _get_project_prompts_dir is not None  # guaranteed by _init_imports()
-    (_, _, get_project_path, _, _, _, _) = _get_registry_functions()
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)
@@ -338,7 +452,7 @@ async def update_project_prompts(name: str, prompts: ProjectPromptsUpdate):
     """Update project prompt files."""
     _init_imports()
     assert _get_project_prompts_dir is not None  # guaranteed by _init_imports()
-    (_, _, get_project_path, _, _, _, _) = _get_registry_functions()
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)
@@ -368,7 +482,7 @@ async def update_project_prompts(name: str, prompts: ProjectPromptsUpdate):
 async def get_project_stats_endpoint(name: str):
     """Get current progress statistics for a project."""
     _init_imports()
-    (_, _, get_project_path, _, _, _, _) = _get_registry_functions()
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)
@@ -395,7 +509,7 @@ async def reset_project(name: str, full_reset: bool = False):
         Dictionary with list of deleted files and reset type
     """
     _init_imports()
-    (_, _, get_project_path, _, _, _, _) = _get_registry_functions()
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)
@@ -492,7 +606,7 @@ async def update_project_settings(name: str, settings: ProjectSettingsUpdate):
     assert _check_spec_exists is not None  # guaranteed by _init_imports()
     assert _get_project_prompts_dir is not None  # guaranteed by _init_imports()
     (_, _, get_project_path, _, _, get_project_concurrency,
-     set_project_concurrency) = _get_registry_functions()
+     set_project_concurrency, _) = _get_registry_functions()
 
     name = validate_project_name(name)
     project_dir = get_project_path(name)

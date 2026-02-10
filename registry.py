@@ -415,6 +415,46 @@ def update_project_path(name: str, new_path: Path) -> bool:
     return True
 
 
+def rename_project(old_name: str, new_name: str, new_path: Path) -> None:
+    """
+    Rename a project in the registry.
+
+    Args:
+        old_name: The current project name.
+        new_name: The new project name.
+        new_path: The new absolute path to the project directory.
+
+    Raises:
+        ValueError: If new name is invalid.
+        RegistryError: If new name already exists or old project not found.
+    """
+    # Validate new name
+    if not re.match(r'^[a-zA-Z0-9_-]{1,50}$', new_name):
+        raise ValueError(
+            "Invalid project name. Use only letters, numbers, hyphens, "
+            "and underscores (1-50 chars)."
+        )
+
+    new_path = Path(new_path).resolve()
+
+    with _get_session() as session:
+        # Check for name collision
+        existing = session.query(Project).filter(Project.name == new_name).first()
+        if existing:
+            raise RegistryError(f"Project '{new_name}' already exists in registry")
+
+        # Find project to rename
+        project = session.query(Project).filter(Project.name == old_name).first()
+        if not project:
+            raise RegistryError(f"Project '{old_name}' not found")
+
+        # Update fields (PK update supported by SQLAlchemy)
+        project.name = new_name
+        project.path = new_path.as_posix()
+
+    logger.info("Renamed project '%s' -> '%s' (path: %s)", old_name, new_name, new_path)
+
+
 def get_project_concurrency(name: str) -> int:
     """
     Get project's default concurrency (1-5).
