@@ -39,9 +39,9 @@ export function Sidebar({
         <aside className="w-64 bg-card border-r border-border flex flex-col h-full shrink-0 relative z-30">
             {/* Header */}
             <div className="p-4 border-b border-border flex items-center gap-3 h-16 shrink-0">
-                <img src="/logo.png" alt="AutoForge" className="h-8 w-8 rounded-full" />
+                <img src="/logo.png" alt="Xaheen" className="h-8 w-8 rounded-full" />
                 <h1 className="font-display font-bold text-lg tracking-tight uppercase">
-                    AutoForge
+                    Xaheen
                 </h1>
             </div>
 
@@ -72,7 +72,7 @@ export function Sidebar({
                     <Button
                         variant="ghost"
                         className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-                        onClick={() => window.open('https://autoforge.cc', '_blank')}
+                        onClick={() => window.open('https://xaheen.ai', '_blank')}
                     >
                         <BookOpen size={18} />
                         Documentation

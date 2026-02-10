@@ -92,7 +92,7 @@ class AgentProcessManager:
         self._callbacks_lock = threading.Lock()
 
         # Lock file to prevent multiple instances (stored in project directory)
-        from autoforge_paths import get_agent_lock_path
+        from xaheen_paths import get_agent_lock_path
         self.lock_file = get_agent_lock_path(self.project_dir)
 
     @property
@@ -235,7 +235,7 @@ class AgentProcessManager:
         Reset them so they can be picked up on next agent start.
         """
         try:
-            from autoforge_paths import get_features_db_path
+            from xaheen_paths import get_features_db_path
             features_db = get_features_db_path(self.project_dir)
             if not features_db.exists():
                 return
@@ -643,10 +643,10 @@ def cleanup_orphaned_locks() -> int:
                 continue
 
             # Check both legacy and new locations for lock files
-            from autoforge_paths import get_autoforge_dir
+            from xaheen_paths import get_xaheen_dir
             lock_locations = [
                 project_path / ".agent.lock",
-                get_autoforge_dir(project_path) / ".agent.lock",
+                get_xaheen_dir(project_path) / ".agent.lock",
             ]
             lock_file = None
             for candidate in lock_locations:

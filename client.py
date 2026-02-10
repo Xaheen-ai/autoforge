@@ -266,8 +266,8 @@ PLAYWRIGHT_TOOLS = [
 # Built-in tools available to agents.
 # WebFetch and WebSearch are included so coding agents can look up current
 # documentation for frameworks and libraries they are implementing.
-# In offline mode (AUTOFORGE_OFFLINE_MODE=1), web tools are excluded.
-_OFFLINE_MODE = os.environ.get("AUTOFORGE_OFFLINE_MODE", "").lower() in ("1", "true", "yes")
+# In offline mode (XAHEEN_OFFLINE_MODE=1 or AUTOFORGE_OFFLINE_MODE=1), web tools are excluded.
+_OFFLINE_MODE = (os.environ.get("XAHEEN_OFFLINE_MODE", "") or os.environ.get("AUTOFORGE_OFFLINE_MODE", "")).lower() in ("1", "true", "yes")
 
 BUILTIN_TOOLS = [
     "Read",
@@ -387,7 +387,7 @@ def create_client(
     project_dir.mkdir(parents=True, exist_ok=True)
 
     # Write settings to a file in the project directory
-    from autoforge_paths import get_claude_settings_path
+    from xaheen_paths import get_claude_settings_path
     settings_file = get_claude_settings_path(project_dir)
     settings_file.parent.mkdir(parents=True, exist_ok=True)
     with open(settings_file, "w") as f:

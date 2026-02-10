@@ -57,7 +57,7 @@ class TestGitUrlValidation(unittest.TestCase):
         self.assertFalse(validate_git_url(""))
 
     def test_is_github_url_true(self):
-        self.assertTrue(is_github_url("https://github.com/Xaheen-ai/autoforge.git"))
+        self.assertTrue(is_github_url("https://github.com/Xaheen-ai/xaheen.git"))
 
     def test_is_github_url_false(self):
         self.assertFalse(is_github_url("https://gitlab.com/user/repo.git"))

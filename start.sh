@@ -3,7 +3,7 @@ cd "$(dirname "$0")"
 
 echo ""
 echo "========================================"
-echo "  AutoForge - Autonomous Coding Agent"
+echo "  Xaheen - Autonomous Coding Agent"
 echo "========================================"
 echo ""
 

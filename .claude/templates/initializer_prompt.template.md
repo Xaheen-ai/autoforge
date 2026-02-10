@@ -304,6 +304,33 @@ The feature_list.json must include tests that **actively verify real data** and 
 
 ---
 
+## EXISTING CODE ANALYSIS (MANDATORY)
+
+**After creating features**, you MUST check if the project already has code:
+
+1. List the project directory to see if source files exist (e.g., `src/`, `app/`, `pages/`, `components/`, `server/`, `api/`, `package.json`, `requirements.txt`, etc.)
+2. If substantial code already exists, **analyze the codebase** to determine which features are already implemented
+3. For each implemented feature, use `feature_mark_passing` to mark it as passing immediately
+4. Log which features were marked as passing and why
+
+**How to determine if a feature is implemented:**
+- Check if the relevant routes, components, API endpoints, or database tables exist
+- Look for the specific functionality described in the feature name
+- Check both frontend and backend code
+- If the feature's core functionality exists (even if imperfect), mark it as passing
+
+**Why this matters:** For existing projects, creating 200+ features all marked as "pending" when most are already built wastes agent time and resources. The coding agents will re-implement features that already work.
+
+**Example analysis workflow:**
+```
+1. ls src/ → see components/, routes/, api/
+2. Check route handlers → auth routes exist → mark auth features as passing
+3. Check components → CRUD components exist → mark CRUD features as passing
+4. Check database schema → tables match spec → mark infrastructure features as passing
+```
+
+---
+
 **CRITICAL INSTRUCTION:**
 IT IS CATASTROPHIC TO REMOVE OR EDIT FEATURES IN FUTURE SESSIONS.
 Features can ONLY be marked as passing (via the `feature_mark_passing` tool with the feature_id).

@@ -40,11 +40,11 @@ from server.utils.process_utils import kill_process_tree
 
 logger = logging.getLogger(__name__)
 
-# Root directory of autoforge (where this script and autonomous_agent_demo.py live)
-AUTOFORGE_ROOT = Path(__file__).parent.resolve()
+# Root directory of xaheen (where this script and autonomous_agent_demo.py live)
+XAHEEN_ROOT = Path(__file__).parent.resolve()
 
 # Debug log file path
-DEBUG_LOG_FILE = AUTOFORGE_ROOT / "orchestrator_debug.log"
+DEBUG_LOG_FILE = XAHEEN_ROOT / "orchestrator_debug.log"
 
 
 class DebugLogger:
@@ -823,7 +823,7 @@ class ParallelOrchestrator:
         cmd = [
             sys.executable,
             "-u",  # Force unbuffered stdout/stderr
-            str(AUTOFORGE_ROOT / "autonomous_agent_demo.py"),
+            str(XAHEEN_ROOT / "autonomous_agent_demo.py"),
             "--project-dir", str(self.project_dir),
             "--max-iterations", "1",
             "--agent-type", "coding",
@@ -889,7 +889,7 @@ class ParallelOrchestrator:
         cmd = [
             sys.executable,
             "-u",
-            str(AUTOFORGE_ROOT / "autonomous_agent_demo.py"),
+            str(XAHEEN_ROOT / "autonomous_agent_demo.py"),
             "--project-dir", str(self.project_dir),
             "--max-iterations", "1",
             "--agent-type", "coding",
@@ -992,7 +992,7 @@ class ParallelOrchestrator:
             cmd = [
                 sys.executable,
                 "-u",
-                str(AUTOFORGE_ROOT / "autonomous_agent_demo.py"),
+                str(XAHEEN_ROOT / "autonomous_agent_demo.py"),
                 "--project-dir", str(self.project_dir),
                 "--max-iterations", "1",
                 "--agent-type", "testing",
@@ -1162,7 +1162,7 @@ class ParallelOrchestrator:
 
         cmd = [
             sys.executable, "-u",
-            str(AUTOFORGE_ROOT / "autonomous_agent_demo.py"),
+            str(XAHEEN_ROOT / "autonomous_agent_demo.py"),
             "--project-dir", str(self.project_dir),
             "--agent-type", "initializer",
             "--max-iterations", "1",
@@ -1182,7 +1182,7 @@ class ParallelOrchestrator:
             "text": True,
             "encoding": "utf-8",
             "errors": "replace",
-            "cwd": str(AUTOFORGE_ROOT),
+            "cwd": str(XAHEEN_ROOT),
             "env": {**os.environ, "PYTHONUNBUFFERED": "1"},
         }
         if sys.platform == "win32":

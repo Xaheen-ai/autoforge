@@ -3,7 +3,7 @@ Project Registry Module
 =======================
 
 Cross-platform project registry for storing project name to path mappings.
-Uses SQLite database stored at ~/.autoforge/registry.db.
+Uses SQLite database stored at ~/.xaheen/registry.db.
 """
 
 import logging
@@ -24,19 +24,19 @@ logger = logging.getLogger(__name__)
 
 
 def _migrate_registry_dir() -> None:
-    """Migrate ~/.autocoder/ to ~/.autoforge/ if needed.
+    """Migrate ~/.autocoder/ to ~/.xaheen/ if needed.
 
     Provides backward compatibility by automatically renaming the old
     config directory to the new location on first access.
     """
     old_dir = Path.home() / ".autocoder"
-    new_dir = Path.home() / ".autoforge"
+    new_dir = Path.home() / ".xaheen"
     if old_dir.exists() and not new_dir.exists():
         try:
             old_dir.rename(new_dir)
-            logger.info("Migrated registry directory: ~/.autocoder/ -> ~/.autoforge/")
+            logger.info("Migrated registry directory: ~/.autocoder/ -> ~/.xaheen/")
         except Exception:
-            logger.warning("Failed to migrate ~/.autocoder/ to ~/.autoforge/", exc_info=True)
+            logger.warning("Failed to migrate ~/.autocoder/ to ~/.xaheen/", exc_info=True)
 
 
 # =============================================================================
@@ -142,15 +142,15 @@ _engine_lock = threading.Lock()
 
 def get_config_dir() -> Path:
     """
-    Get the config directory: ~/.autoforge/
+    Get the config directory: ~/.xaheen/
 
     Automatically migrates from ~/.autocoder/ if needed.
 
     Returns:
-        Path to ~/.autoforge/ (created if it doesn't exist)
+        Path to ~/.xaheen/ (created if it doesn't exist)
     """
     _migrate_registry_dir()
-    config_dir = Path.home() / ".autoforge"
+    config_dir = Path.home() / ".xaheen"
     config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
 

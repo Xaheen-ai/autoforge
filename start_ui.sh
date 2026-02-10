@@ -1,11 +1,11 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-# AutoForge UI Launcher for Unix/Linux/macOS
+# Xaheen UI Launcher for Unix/Linux/macOS
 # This script launches the web UI for the autonomous coding agent.
 
 echo ""
 echo "===================================="
-echo "  AutoForge UI"
+echo "  Xaheen UI"
 echo "===================================="
 echo ""
 

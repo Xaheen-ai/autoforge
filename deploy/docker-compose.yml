@@ -1,4 +1,4 @@
-# AutoForge Docker Compose
+# Xaheen Docker Compose
 # ========================
 # Single-service deployment for VPS
 #
@@ -9,18 +9,18 @@
 # Data is persisted in Docker volumes for projects and the SQLite database.
 
 services:
-  autoforge:
+  xaheen:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-    container_name: autoforge
+    container_name: xaheen
     restart: unless-stopped
     ports:
-      - "${AUTOFORGE_PORT:-8888}:8888"
+      - "${XAHEEN_PORT:-8888}:8888"
     volumes:
       # Persist projects and database across container restarts
-      - autoforge-projects:/data/projects
-      - autoforge-db:/data/db
+      - xaheen-projects:/data/projects
+      - xaheen-db:/data/db
       # Mount host projects directory (optional - for accessing existing projects)
       # - /path/to/your/projects:/data/projects
     environment:
@@ -38,12 +38,12 @@ services:
       # GitHub (optional)
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       # Offline mode (optional)
-      - AUTOFORGE_OFFLINE_MODE=${AUTOFORGE_OFFLINE_MODE:-0}
+      - XAHEEN_OFFLINE_MODE=${XAHEEN_OFFLINE_MODE:-0}
       # Playwright
       - PLAYWRIGHT_BROWSER=${PLAYWRIGHT_BROWSER:-chromium}
       - PLAYWRIGHT_HEADLESS=true
       # Remote access (always enabled in Docker)
-      - AUTOFORGE_ALLOW_REMOTE=1
+      - XAHEEN_ALLOW_REMOTE=1
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8888/api/health" ]
       interval: 30s
@@ -52,7 +52,7 @@ services:
       start_period: 10s
 
 volumes:
-  autoforge-projects:
+  xaheen-projects:
     driver: local
-  autoforge-db:
+  xaheen-db:
     driver: local

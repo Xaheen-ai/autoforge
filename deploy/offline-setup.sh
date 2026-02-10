@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
-# AutoForge Offline Setup Script
+# Xaheen Offline Setup Script
 # =============================================================================
 # Pre-downloads all dependencies for air-gapped/offline VPS operation.
 #
 # Run this script ONCE while connected to the internet, then copy the entire
-# AutoForge directory to your offline VPS.
+# Xaheen directory to your offline VPS.
 #
 # Usage:
 #   chmod +x deploy/offline-setup.sh
@@ -27,7 +27,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 echo ""
 echo "=========================================="
-echo "  AutoForge Offline Preparation"
+echo "  Xaheen Offline Preparation"
 echo "=========================================="
 echo ""
 
@@ -77,11 +77,11 @@ echo "=========================================="
 echo "  Offline Preparation Complete!"
 echo "=========================================="
 echo ""
-echo "  Your AutoForge installation is ready for offline use."
+echo "  Your Xaheen installation is ready for offline use."
 echo ""
 echo "  To deploy on an offline VPS:"
 echo "  1. Copy this entire directory to the VPS"
-echo "  2. Set AUTOFORGE_OFFLINE_MODE=1 in .env"
+echo "  2. Set XAHEEN_OFFLINE_MODE=1 in .env"
 echo "  3. Run: python start_ui.py --host 0.0.0.0"
 echo ""
 echo "  Offline pip install (on VPS):"

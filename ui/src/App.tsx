@@ -35,8 +35,15 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
-const STORAGE_KEY = 'autoforge-selected-project'
-const VIEW_MODE_KEY = 'autoforge-view-mode'
+const STORAGE_KEY = 'xaheen-selected-project'
+const VIEW_MODE_KEY = 'xaheen-view-mode'
+// Migrate old localStorage keys
+if (!localStorage.getItem('xaheen-selected-project') && localStorage.getItem('autoforge-selected-project')) {
+  localStorage.setItem('xaheen-selected-project', localStorage.getItem('autoforge-selected-project')!)
+}
+if (!localStorage.getItem('xaheen-view-mode') && localStorage.getItem('autoforge-view-mode')) {
+  localStorage.setItem('xaheen-view-mode', localStorage.getItem('autoforge-view-mode')!)
+}
 
 // Bottom padding for main content when debug panel is collapsed (40px header + 8px margin)
 const COLLAPSED_DEBUG_PANEL_CLEARANCE = 48
@@ -352,10 +359,10 @@ function App() {
             {!selectedProject ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 max-w-lg mx-auto">
                 <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6">
-                  <img src="/logo.png" alt="AutoForge" className="w-12 h-12 opacity-80" />
+                  <img src="/logo.png" alt="Xaheen" className="w-12 h-12 opacity-80" />
                 </div>
                 <h2 className="font-display text-3xl font-bold mb-3">
-                  Welcome to AutoForge
+                  Welcome to Xaheen
                 </h2>
                 <p className="text-muted-foreground text-lg mb-8">
                   Select a workspace from the sidebar to begin, or create a new project to start building.

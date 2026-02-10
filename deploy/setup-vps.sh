@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# AutoForge VPS Setup Script
+# Xaheen VPS Setup Script
 # =============================================================================
-# Automates the setup of AutoForge on a fresh Ubuntu/Debian VPS.
+# Automates the setup of Xaheen on a fresh Ubuntu/Debian VPS.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/.../setup-vps.sh | bash
@@ -11,10 +11,10 @@
 #
 # What this script does:
 #   1. Installs system dependencies (Python 3.12, Node.js 20, git, nginx)
-#   2. Clones AutoForge repository
+#   2. Clones Xaheen repository
 #   3. Sets up Python virtual environment and installs dependencies
 #   4. Builds the React frontend
-#   5. Creates a systemd service for AutoForge
+#   5. Creates a systemd service for Xaheen
 #   6. Configures nginx reverse proxy
 #   7. Enables and starts the service
 # =============================================================================
@@ -29,10 +29,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-INSTALL_DIR="${AUTOFORGE_INSTALL_DIR:-/opt/autoforge}"
-AUTOFORGE_USER="${AUTOFORGE_USER:-autoforge}"
-AUTOFORGE_PORT="${AUTOFORGE_PORT:-8888}"
-AUTOFORGE_REPO="${AUTOFORGE_REPO:-https://github.com/Xaheen-ai/autoforge.git}"
+INSTALL_DIR="${XAHEEN_INSTALL_DIR:-/opt/xaheen}"
+XAHEEN_USER="${XAHEEN_USER:-xaheen}"
+XAHEEN_PORT="${XAHEEN_PORT:-8888}"
+XAHEEN_REPO="${XAHEEN_REPO:-https://github.com/Xaheen-ai/xaheen.git}"
 
 log_info()  { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_ok()    { echo -e "${GREEN}[OK]${NC} $1"; }
@@ -47,7 +47,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "  AutoForge VPS Setup"
+echo "  Xaheen VPS Setup"
 echo "=========================================="
 echo ""
 
@@ -72,91 +72,91 @@ else
 fi
 
 # Step 2: Create service user
-if ! id "$AUTOFORGE_USER" &>/dev/null; then
-    log_info "Creating service user '$AUTOFORGE_USER'..."
-    useradd --system --create-home --shell /bin/bash "$AUTOFORGE_USER"
-    log_ok "User '$AUTOFORGE_USER' created"
+if ! id "$XAHEEN_USER" &>/dev/null; then
+    log_info "Creating service user '$XAHEEN_USER'..."
+    useradd --system --create-home --shell /bin/bash "$XAHEEN_USER"
+    log_ok "User '$XAHEEN_USER' created"
 else
-    log_ok "User '$AUTOFORGE_USER' already exists"
+    log_ok "User '$XAHEEN_USER' already exists"
 fi
 
-# Step 3: Clone or update AutoForge
+# Step 3: Clone or update Xaheen
 if [ -d "$INSTALL_DIR/.git" ]; then
-    log_info "Updating AutoForge..."
+    log_info "Updating Xaheen..."
     cd "$INSTALL_DIR"
-    sudo -u "$AUTOFORGE_USER" git pull --ff-only
-    log_ok "AutoForge updated"
+    sudo -u "$XAHEEN_USER" git pull --ff-only
+    log_ok "Xaheen updated"
 else
-    log_info "Cloning AutoForge..."
-    git clone "$AUTOFORGE_REPO" "$INSTALL_DIR"
-    chown -R "$AUTOFORGE_USER:$AUTOFORGE_USER" "$INSTALL_DIR"
-    log_ok "AutoForge cloned to $INSTALL_DIR"
+    log_info "Cloning Xaheen..."
+    git clone "$XAHEEN_REPO" "$INSTALL_DIR"
+    chown -R "$XAHEEN_USER:$XAHEEN_USER" "$INSTALL_DIR"
+    log_ok "Xaheen cloned to $INSTALL_DIR"
 fi
 
 cd "$INSTALL_DIR"
 
 # Step 4: Python virtual environment
 log_info "Setting up Python environment..."
-sudo -u "$AUTOFORGE_USER" python3.12 -m venv "$INSTALL_DIR/venv"
-sudo -u "$AUTOFORGE_USER" "$INSTALL_DIR/venv/bin/pip" install -q --upgrade pip
-sudo -u "$AUTOFORGE_USER" "$INSTALL_DIR/venv/bin/pip" install -q -r requirements-prod.txt
+sudo -u "$XAHEEN_USER" python3.12 -m venv "$INSTALL_DIR/venv"
+sudo -u "$XAHEEN_USER" "$INSTALL_DIR/venv/bin/pip" install -q --upgrade pip
+sudo -u "$XAHEEN_USER" "$INSTALL_DIR/venv/bin/pip" install -q -r requirements-prod.txt
 log_ok "Python dependencies installed"
 
 # Step 5: Build frontend
 log_info "Building React frontend..."
 cd "$INSTALL_DIR/ui"
-sudo -u "$AUTOFORGE_USER" npm ci --production=false --silent
-sudo -u "$AUTOFORGE_USER" npm run build
+sudo -u "$XAHEEN_USER" npm ci --production=false --silent
+sudo -u "$XAHEEN_USER" npm run build
 cd "$INSTALL_DIR"
 log_ok "Frontend built"
 
 # Step 6: Install Playwright MCP (pinned)
 log_info "Installing Playwright MCP..."
-sudo -u "$AUTOFORGE_USER" npm install -g @playwright/mcp@0.0.30
-sudo -u "$AUTOFORGE_USER" npx playwright install --with-deps chromium > /dev/null 2>&1
+sudo -u "$XAHEEN_USER" npm install -g @playwright/mcp@0.0.30
+sudo -u "$XAHEEN_USER" npx playwright install --with-deps chromium > /dev/null 2>&1
 log_ok "Playwright MCP installed"
 
 # Step 7: Create .env if it doesn't exist
 if [ ! -f "$INSTALL_DIR/.env" ]; then
     log_info "Creating .env from template..."
     cp "$INSTALL_DIR/.env.example" "$INSTALL_DIR/.env"
-    chown "$AUTOFORGE_USER:$AUTOFORGE_USER" "$INSTALL_DIR/.env"
+    chown "$XAHEEN_USER:$XAHEEN_USER" "$INSTALL_DIR/.env"
     chmod 600 "$INSTALL_DIR/.env"
     log_warn "Edit $INSTALL_DIR/.env to set your API keys!"
 fi
 
 # Step 8: Create projects directory
-mkdir -p /data/autoforge/projects
-chown -R "$AUTOFORGE_USER:$AUTOFORGE_USER" /data/autoforge
+mkdir -p /data/xaheen/projects
+chown -R "$XAHEEN_USER:$XAHEEN_USER" /data/xaheen
 
 # Step 9: systemd service
 log_info "Creating systemd service..."
-cat > /etc/systemd/system/autoforge.service << EOF
+cat > /etc/systemd/system/xaheen.service << EOF
 [Unit]
-Description=AutoForge Autonomous Coding Agent
+Description=Xaheen Autonomous Coding Agent
 After=network.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-User=$AUTOFORGE_USER
-Group=$AUTOFORGE_USER
+User=$XAHEEN_USER
+Group=$XAHEEN_USER
 WorkingDirectory=$INSTALL_DIR
 Environment=PATH=$INSTALL_DIR/venv/bin:/usr/local/bin:/usr/bin:/bin
-Environment=AUTOFORGE_ALLOW_REMOTE=1
+Environment=XAHEEN_ALLOW_REMOTE=1
 Environment=PLAYWRIGHT_HEADLESS=true
 EnvironmentFile=$INSTALL_DIR/.env
-ExecStart=$INSTALL_DIR/venv/bin/python -m uvicorn server.main:app --host 127.0.0.1 --port $AUTOFORGE_PORT
+ExecStart=$INSTALL_DIR/venv/bin/python -m uvicorn server.main:app --host 127.0.0.1 --port $XAHEEN_PORT
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=autoforge
+SyslogIdentifier=xaheen
 
 # Security hardening
 NoNewPrivileges=yes
 ProtectSystem=strict
-ReadWritePaths=$INSTALL_DIR /data/autoforge
+ReadWritePaths=$INSTALL_DIR /data/xaheen
 PrivateTmp=yes
 
 [Install]
@@ -166,30 +166,30 @@ log_ok "systemd service created"
 
 # Step 10: nginx config
 log_info "Configuring nginx..."
-cp "$INSTALL_DIR/deploy/nginx.conf" /etc/nginx/sites-available/autoforge
-ln -sf /etc/nginx/sites-available/autoforge /etc/nginx/sites-enabled/autoforge
+cp "$INSTALL_DIR/deploy/nginx.conf" /etc/nginx/sites-available/xaheen
+ln -sf /etc/nginx/sites-available/xaheen /etc/nginx/sites-enabled/xaheen
 
 # Test nginx config
 if nginx -t > /dev/null 2>&1; then
     log_ok "nginx configuration valid"
 else
-    log_error "nginx configuration invalid — check /etc/nginx/sites-available/autoforge"
+    log_error "nginx configuration invalid — check /etc/nginx/sites-available/xaheen"
 fi
 
 # Step 11: Enable and start services
 log_info "Starting services..."
 systemctl daemon-reload
-systemctl enable autoforge
-systemctl restart autoforge
+systemctl enable xaheen
+systemctl restart xaheen
 systemctl restart nginx
 log_ok "Services started"
 
 # Final status check
 sleep 2
-if systemctl is-active --quiet autoforge; then
-    log_ok "AutoForge is running!"
+if systemctl is-active --quiet xaheen; then
+    log_ok "Xaheen is running!"
 else
-    log_error "AutoForge failed to start. Check: journalctl -u autoforge -f"
+    log_error "Xaheen failed to start. Check: journalctl -u xaheen -f"
 fi
 
 echo ""
@@ -197,15 +197,15 @@ echo "=========================================="
 echo "  Setup Complete!"
 echo "=========================================="
 echo ""
-echo "  AutoForge is running at: http://$(hostname -I | awk '{print $1}'):80"
+echo "  Xaheen is running at: http://$(hostname -I | awk '{print $1}'):80"
 echo ""
 echo "  Next steps:"
 echo "  1. Edit $INSTALL_DIR/.env with your API keys"
-echo "  2. Restart: systemctl restart autoforge"
+echo "  2. Restart: systemctl restart xaheen"
 echo "  3. (Optional) Set up SSL: certbot --nginx"
 echo ""
 echo "  Useful commands:"
-echo "    journalctl -u autoforge -f    # View logs"
-echo "    systemctl status autoforge    # Check status"
-echo "    systemctl restart autoforge   # Restart"
+echo "    journalctl -u xaheen -f    # View logs"
+echo "    systemctl status xaheen    # Check status"
+echo "    systemctl restart xaheen   # Restart"
 echo ""

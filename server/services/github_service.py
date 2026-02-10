@@ -282,7 +282,7 @@ def _configure_credential_helper(
         token: Authentication token.
     """
     # Use a project-local credential store
-    cred_file = project_dir / ".git" / "autoforge-credentials"
+    cred_file = project_dir / ".git" / "xaheen-credentials"
     auth_url = _build_authenticated_url(url, token)
     cred_file.write_text(auth_url + "\n")
     cred_file.chmod(0o600)  # Owner read/write only

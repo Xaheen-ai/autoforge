@@ -1,4 +1,4 @@
-# AutoForge
+# Xaheen
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/leonvanzyl)
 
@@ -44,39 +44,39 @@ You need one of the following:
 ### Option 1: npm Install (Recommended)
 
 ```bash
-npm install -g autoforge-ai
-autoforge
+npm install -g xaheen
+xaheen
 ```
 
-On first run, AutoForge automatically:
+On first run, Xaheen automatically:
 1. Checks for Python 3.11+
-2. Creates a virtual environment at `~/.autoforge/venv/`
+2. Creates a virtual environment at `~/.xaheen/venv/`
 3. Installs Python dependencies
-4. Copies a default config file to `~/.autoforge/.env`
+4. Copies a default config file to `~/.xaheen/.env`
 5. Starts the server and opens your browser
 
 ### CLI Commands
 
 ```
-autoforge                       Start the server (default)
-autoforge config                Open ~/.autoforge/.env in $EDITOR
-autoforge config --path         Print config file path
-autoforge config --show         Show active configuration values
-autoforge --port PORT           Custom port (default: auto from 8888)
-autoforge --host HOST           Custom host (default: 127.0.0.1)
-autoforge --no-browser          Don't auto-open browser
-autoforge --repair              Delete and recreate virtual environment
-autoforge --version             Print version
-autoforge --help                Show help
+xaheen                       Start the server (default)
+xaheen config                Open ~/.xaheen/.env in $EDITOR
+xaheen config --path         Print config file path
+xaheen config --show         Show active configuration values
+xaheen --port PORT           Custom port (default: auto from 8888)
+xaheen --host HOST           Custom host (default: 127.0.0.1)
+xaheen --no-browser          Don't auto-open browser
+xaheen --repair              Delete and recreate virtual environment
+xaheen --version             Print version
+xaheen --help                Show help
 ```
 
 ### Option 2: From Source (Development)
 
-Clone the repository and use the start scripts directly. This is the recommended path if you want to contribute or modify AutoForge itself.
+Clone the repository and use the start scripts directly. This is the recommended path if you want to contribute or modify Xaheen itself.
 
 ```bash
-git clone https://github.com/leonvanzyl/autoforge.git
-cd autoforge
+git clone https://github.com/leonvanzyl/xaheen.git
+cd xaheen
 ```
 
 **Web UI:**
@@ -160,7 +160,7 @@ Features are stored in SQLite via SQLAlchemy and managed through an MCP server t
 ## Project Structure
 
 ```
-autoforge/
+xaheen/
 ├── bin/                         # npm CLI entry point
 ├── lib/                         # CLI bootstrap and setup logic
 ├── start.py                     # CLI menu and project management
@@ -295,14 +295,14 @@ The UI receives live updates via WebSocket (`/ws/projects/{project_name}`):
 
 ## Configuration
 
-AutoForge reads configuration from a `.env` file. The file location depends on how you installed AutoForge:
+Xaheen reads configuration from a `.env` file. The file location depends on how you installed Xaheen:
 
 | Install method | Config file location | Edit command |
 |---|---|---|
-| npm (global) | `~/.autoforge/.env` | `autoforge config` |
+| npm (global) | `~/.xaheen/.env` | `xaheen config` |
 | From source | `.env` in the project root | Edit directly |
 
-A default config file is created automatically on first run. Use `autoforge config` to open it in your editor, or `autoforge config --show` to print the active values.
+A default config file is created automatically on first run. Use `xaheen config` to open it in your editor, or `xaheen config --show` to print the active values.
 
 ### N8N Webhook Integration
 
@@ -385,11 +385,11 @@ Install Python 3.11 or later from [python.org](https://www.python.org/downloads/
 **"Python venv module not available"**
 On Debian/Ubuntu, the venv module is packaged separately. Install it with `sudo apt install python3.XX-venv` (replace `XX` with your Python minor version, e.g., `python3.12-venv`).
 
-**"AutoForge is already running"**
+**"Xaheen is already running"**
 A server instance is already active. Use the browser URL shown in the terminal, or stop the existing instance with Ctrl+C first.
 
 **Virtual environment issues after a Python upgrade**
-Run `autoforge --repair` to delete and recreate the virtual environment from scratch.
+Run `xaheen --repair` to delete and recreate the virtual environment from scratch.
 
 ---
 

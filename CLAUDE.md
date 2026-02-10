@@ -20,13 +20,13 @@ This is an autonomous coding agent system with a React-based UI. It uses the Cla
 ### npm Global Install (Recommended)
 
 ```bash
-npm install -g autoforge-ai
-autoforge                    # Start server (first run sets up Python venv)
-autoforge config             # Edit ~/.autoforge/.env in $EDITOR
-autoforge config --show      # Print active configuration
-autoforge --port 9999        # Custom port
-autoforge --no-browser       # Don't auto-open browser
-autoforge --repair           # Delete and recreate ~/.autoforge/venv/
+npm install -g xaheen
+xaheen                    # Start server (first run sets up Python venv)
+xaheen config             # Edit ~/.xaheen/.env in $EDITOR
+xaheen config --show      # Print active configuration
+xaheen --port 9999        # Custom port
+xaheen --no-browser       # Don't auto-open browser
+xaheen --repair           # Delete and recreate ~/.xaheen/venv/
 ```
 
 ### From Source (Development)
@@ -148,10 +148,10 @@ Configuration in `pyproject.toml`:
 
 ### npm CLI (bin/, lib/)
 
-The `autoforge` command is a Node.js wrapper that manages the Python environment and server lifecycle:
-- `bin/autoforge.js` - Entry point (shebang script)
-- `lib/cli.js` - Main CLI logic: Python 3.11+ detection (cross-platform), venv management at `~/.autoforge/venv/` with composite marker (requirements hash + Python version), `.env` config loading from `~/.autoforge/.env`, uvicorn server startup with PID file, and signal handling
-- `package.json` - npm package config (`autoforge-ai` on npm), `files` whitelist with `__pycache__` exclusions, `prepublishOnly` builds the UI
+The `xaheen` command is a Node.js wrapper that manages the Python environment and server lifecycle:
+- `bin/xaheen.js` - Entry point (shebang script)
+- `lib/cli.js` - Main CLI logic: Python 3.11+ detection (cross-platform), venv management at `~/.xaheen/venv/` with composite marker (requirements hash + Python version), `.env` config loading from `~/.xaheen/.env`, uvicorn server startup with PID file, and signal handling
+- `package.json` - npm package config (`xaheen` on npm), `files` whitelist with `__pycache__` exclusions, `prepublishOnly` builds the UI
 - `requirements-prod.txt` - Runtime-only Python deps (excludes ruff, mypy, pytest)
 - `.npmignore` - Excludes dev files, tests, UI source from the published tarball
 
@@ -161,7 +161,7 @@ Publishing: `npm publish` (triggers `prepublishOnly` which builds UI, then publi
 
 - `start.py` - CLI launcher with project creation/selection menu
 - `autonomous_agent_demo.py` - Entry point for running the agent (supports `--yolo`, `--parallel`, `--batch-size`, `--batch-features`)
-- `autoforge_paths.py` - Central path resolution with dual-path backward compatibility and migration
+- `xaheen_paths.py` - Central path resolution with dual-path backward compatibility and migration
 - `agent.py` - Agent session loop using Claude Agent SDK
 - `client.py` - ClaudeSDKClient configuration with security hooks, MCP servers, and Vertex AI support
 - `security.py` - Bash command allowlist validation (ALLOWED_COMMANDS whitelist)
@@ -179,7 +179,7 @@ Publishing: `npm publish` (triggers `prepublishOnly` which builds UI, then publi
 ### Project Registry
 
 Projects can be stored in any directory. The registry maps project names to paths using SQLite:
-- **All platforms**: `~/.autoforge/registry.db`
+- **All platforms**: `~/.xaheen/registry.db`
 
 The registry uses:
 - SQLite database with SQLAlchemy ORM
@@ -280,18 +280,18 @@ Keyboard shortcuts (press `?` for help):
 
 ### Project Structure for Generated Apps
 
-Projects can be stored in any directory (registered in `~/.autoforge/registry.db`). Each project contains:
-- `.autoforge/prompts/app_spec.txt` - Application specification (XML format)
-- `.autoforge/prompts/initializer_prompt.md` - First session prompt
-- `.autoforge/prompts/coding_prompt.md` - Continuation session prompt
-- `.autoforge/features.db` - SQLite database with feature test cases
-- `.autoforge/.agent.lock` - Lock file to prevent multiple agent instances
-- `.autoforge/allowed_commands.yaml` - Project-specific bash command allowlist (optional)
-- `.autoforge/.gitignore` - Ignores runtime files
+Projects can be stored in any directory (registered in `~/.xaheen/registry.db`). Each project contains:
+- `.xaheen/prompts/app_spec.txt` - Application specification (XML format)
+- `.xaheen/prompts/initializer_prompt.md` - First session prompt
+- `.xaheen/prompts/coding_prompt.md` - Continuation session prompt
+- `.xaheen/features.db` - SQLite database with feature test cases
+- `.xaheen/.agent.lock` - Lock file to prevent multiple agent instances
+- `.xaheen/allowed_commands.yaml` - Project-specific bash command allowlist (optional)
+- `.xaheen/.gitignore` - Ignores runtime files
 - `CLAUDE.md` - Stays at project root (SDK convention)
 - `app_spec.txt` - Root copy for agent template compatibility
 
-Legacy projects with files at root level (e.g., `features.db`, `prompts/`) are auto-migrated to `.autoforge/` on next agent start. Dual-path resolution ensures old and new layouts work transparently.
+Legacy projects with files at root level (e.g., `features.db`, `prompts/`) are auto-migrated to `.xaheen/` on next agent start. Dual-path resolution ensures old and new layouts work transparently.
 
 ### Security Model
 
@@ -337,14 +337,14 @@ The agent's bash command access is controlled through a hierarchical configurati
 
 **Command Hierarchy (highest to lowest priority):**
 1. **Hardcoded Blocklist** (`security.py`) - NEVER allowed (dd, sudo, shutdown, etc.)
-2. **Org Blocklist** (`~/.autoforge/config.yaml`) - Cannot be overridden by projects
-3. **Org Allowlist** (`~/.autoforge/config.yaml`) - Available to all projects
+2. **Org Blocklist** (`~/.xaheen/config.yaml`) - Cannot be overridden by projects
+3. **Org Allowlist** (`~/.xaheen/config.yaml`) - Available to all projects
 4. **Global Allowlist** (`security.py`) - Default commands (npm, git, curl, etc.)
-5. **Project Allowlist** (`.autoforge/allowed_commands.yaml`) - Project-specific commands
+5. **Project Allowlist** (`.xaheen/allowed_commands.yaml`) - Project-specific commands
 
 **Project Configuration:**
 
-Each project can define custom allowed commands in `.autoforge/allowed_commands.yaml`:
+Each project can define custom allowed commands in `.xaheen/allowed_commands.yaml`:
 
 ```yaml
 version: 1
@@ -364,7 +364,7 @@ commands:
 
 **Organization Configuration:**
 
-System administrators can set org-wide policies in `~/.autoforge/config.yaml`:
+System administrators can set org-wide policies in `~/.xaheen/config.yaml`:
 
 ```yaml
 version: 1
@@ -432,7 +432,7 @@ Alternative providers are configured via the **Settings UI** (gear icon > API Pr
 **Slash commands** (`.claude/commands/`):
 - `/create-spec` - Interactive spec creation for new projects
 - `/expand-project` - Expand existing project with new features
-- `/gsd-to-autoforge-spec` - Convert GSD codebase mapping to app_spec.txt
+- `/gsd-to-xaheen-spec` - Convert GSD codebase mapping to app_spec.txt
 - `/check-code` - Run lint and type-check for code quality
 - `/checkpoint` - Create comprehensive checkpoint commit
 - `/review-pr` - Review pull requests
@@ -444,7 +444,7 @@ Alternative providers are configured via the **Settings UI** (gear icon > API Pr
 
 **Skills** (`.claude/skills/`):
 - `frontend-design` - Distinctive, production-grade UI design
-- `gsd-to-autoforge-spec` - Convert GSD codebase mapping to AutoForge app_spec format
+- `gsd-to-xaheen-spec` - Convert GSD codebase mapping to Xaheen app_spec format
 
 **Other:**
 - `.claude/templates/` - Prompt templates copied to new projects
@@ -454,12 +454,12 @@ Alternative providers are configured via the **Settings UI** (gear icon > API Pr
 
 ### Prompt Loading Fallback Chain
 
-1. Project-specific: `{project_dir}/.autoforge/prompts/{name}.md` (or legacy `{project_dir}/prompts/{name}.md`)
+1. Project-specific: `{project_dir}/.xaheen/prompts/{name}.md` (or legacy `{project_dir}/prompts/{name}.md`)
 2. Base template: `.claude/templates/{name}.template.md`
 
 ### Agent Session Flow
 
-1. Check if `.autoforge/features.db` has features (determines initializer vs coding agent)
+1. Check if `.xaheen/features.db` has features (determines initializer vs coding agent)
 2. Create ClaudeSDKClient with security settings
 3. Send prompt and stream response
 4. Auto-continue with 3-second delay between sessions

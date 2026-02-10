@@ -1,6 +1,6 @@
-# AutoForge app_spec.txt XML Format
+# Xaheen app_spec.txt XML Format
 
-Complete reference for the XML structure expected by AutoForge's Initializer agent.
+Complete reference for the XML structure expected by Xaheen's Initializer agent.
 
 ## Root Structure
 
@@ -275,7 +275,7 @@ The Initializer agent expects features distributed across categories:
 | Medium web app | 200-250 | 10-15 |
 | Complex full-stack | 300-400 | 15-20 |
 
-## GSD to AutoForge Mapping
+## GSD to Xaheen Mapping
 
 When converting from GSD codebase mapping:
 

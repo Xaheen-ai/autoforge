@@ -128,7 +128,7 @@ async def expand_project_websocket(websocket: WebSocket, project_name: str):
         return
 
     # Verify project has app_spec.txt
-    from autoforge_paths import get_prompts_dir
+    from xaheen_paths import get_prompts_dir
     spec_path = get_prompts_dir(project_dir) / "app_spec.txt"
     if not spec_path.exists():
         await websocket.send_json({"type": "error", "content": "Project has no spec. Create a spec first before expanding."})

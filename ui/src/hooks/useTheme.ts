@@ -52,8 +52,15 @@ export const THEMES: ThemeOption[] = [
   }
 ]
 
-const THEME_STORAGE_KEY = 'autoforge-theme'
-const DARK_MODE_STORAGE_KEY = 'autoforge-dark-mode'
+const THEME_STORAGE_KEY = 'xaheen-theme'
+const DARK_MODE_STORAGE_KEY = 'xaheen-dark-mode'
+// Migrate old localStorage keys
+if (!localStorage.getItem('xaheen-theme') && localStorage.getItem('autoforge-theme')) {
+  localStorage.setItem('xaheen-theme', localStorage.getItem('autoforge-theme')!)
+}
+if (!localStorage.getItem('xaheen-dark-mode') && localStorage.getItem('autoforge-dark-mode')) {
+  localStorage.setItem('xaheen-dark-mode', localStorage.getItem('autoforge-dark-mode')!)
+}
 
 function getThemeClass(themeId: ThemeId): string {
   switch (themeId) {

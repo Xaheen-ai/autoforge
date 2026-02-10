@@ -109,7 +109,7 @@ After every implementation session, you MUST:
 
 ## Project-Specific Context
 
-For this project (autoforge):
+For this project (xaheen):
 - **Python Backend**: Uses SQLAlchemy, FastAPI, follows patterns in `api/`, `mcp_server/`
 - **React UI**: Uses React 18, TypeScript, TanStack Query, Tailwind CSS v4, Radix UI
 - **Design System**: Neobrutalism style with specific color tokens and animations
