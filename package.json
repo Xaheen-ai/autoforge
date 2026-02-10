@@ -52,5 +52,8 @@
     "start": "python3 start_ui.py",
     "build": "npm --prefix ui run build",
     "prepublishOnly": "npm --prefix ui install && npm --prefix ui run build"
+  },
+  "devDependencies": {
+    "convex": "^1.31.7"
   }
 }
