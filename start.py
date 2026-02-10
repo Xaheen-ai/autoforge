@@ -39,14 +39,21 @@ def check_spec_exists(project_dir: Path) -> bool:
     Checks in order:
     1. Project prompts directory: {project_dir}/prompts/app_spec.txt
     2. Project root (legacy): {project_dir}/app_spec.txt
+
+    Accepts specs containing any of these markers:
+    - <project_specification> (template-generated)
+    - <project_name> (manually authored)
+    - <overview> (manually authored)
     """
+    valid_markers = ("<project_specification>", "<project_name>", "<overview>")
+
     # Check project prompts directory first
     project_prompts = get_project_prompts_dir(project_dir)
     spec_file = project_prompts / "app_spec.txt"
     if spec_file.exists():
         try:
             content = spec_file.read_text(encoding="utf-8")
-            return "<project_specification>" in content
+            return any(marker in content for marker in valid_markers)
         except (OSError, PermissionError):
             return False
 
@@ -55,7 +62,7 @@ def check_spec_exists(project_dir: Path) -> bool:
     if legacy_spec.exists():
         try:
             content = legacy_spec.read_text(encoding="utf-8")
-            return "<project_specification>" in content
+            return any(marker in content for marker in valid_markers)
         except (OSError, PermissionError):
             return False
 

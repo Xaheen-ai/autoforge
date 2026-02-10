@@ -1055,43 +1055,98 @@ class ParallelOrchestrator:
             print(f"  ✓ Created {progress_file.name}", flush=True)
             debug_log.log("FILES", "Created missing claude-progress.txt")
 
-    def _post_init_checklist(self):
-        """Verify essential project artefacts after initializer completes.
+        # Enforce app_spec.txt wrapper
+        self._enforce_spec_wrapper()
 
-        Logs warnings for anything the initializer should have created but
-        didn't.  Programmatically fixes what it can (e.g. progress file).
+    def _enforce_spec_wrapper(self):
+        """Ensure app_spec.txt has the <project_specification> wrapper.
+
+        Some LLMs (GLM, Ollama) generate the spec content without
+        the required wrapper tag.  This function adds it if missing,
+        so downstream checks (has_spec) always pass.
+        """
+        from prompts import get_project_prompts_dir
+
+        # Check prompts directory first, then legacy root
+        prompts_dir = get_project_prompts_dir(self.project_dir)
+        spec_file = prompts_dir / "app_spec.txt"
+        if not spec_file.exists():
+            spec_file = self.project_dir / "app_spec.txt"
+        if not spec_file.exists():
+            return  # No spec at all — nothing to fix
+
+        try:
+            content = spec_file.read_text(encoding="utf-8")
+        except (OSError, PermissionError):
+            return
+
+        if "<project_specification>" in content:
+            return  # Already properly wrapped
+
+        # Has content but no wrapper — wrap it
+        if content.strip():
+            wrapped = f"<project_specification>\n{content.strip()}\n</project_specification>\n"
+            spec_file.write_text(wrapped, encoding="utf-8")
+            print(f"  ✓ app_spec.txt — added <project_specification> wrapper", flush=True)
+            debug_log.log("CHECKLIST", "Wrapped app_spec.txt with <project_specification> tags")
+
+    def _post_init_checklist(self):
+        """Verify and enforce essential project artefacts after initializer.
+
+        This is a GUARDRAIL, not just a check.  It programmatically fixes
+        anything the initializer agent should have created but didn't —
+        critical for less capable LLMs that skip template instructions.
         """
         print("\n  POST-INITIALIZATION CHECKLIST", flush=True)
         print("  " + "-" * 40, flush=True)
 
-        checks = [
-            ("app_spec.txt", False),       # should already exist, just verify
-            ("init.sh", False),             # initializer should create this
-            ("claude-progress.txt", True),  # auto-create if missing
-            (".git", False),                # git init should have run
-        ]
-
         all_ok = True
-        for filename, auto_create in checks:
-            path = self.project_dir / filename
-            if path.exists():
-                print(f"  ✓ {filename}", flush=True)
-            elif auto_create:
-                # Programmatically create the file
-                if filename == "claude-progress.txt":
-                    path.write_text("## Progress Log\n\n")
-                print(f"  ✓ {filename} (auto-created)", flush=True)
-                debug_log.log("CHECKLIST", f"Auto-created missing {filename}")
-            else:
-                print(f"  ✗ {filename} — MISSING (initializer may not have created it)", flush=True)
-                debug_log.log("CHECKLIST", f"Missing expected file: {filename}")
-                all_ok = False
+
+        # 1. app_spec.txt — must exist with proper wrapper
+        from prompts import get_project_prompts_dir
+        prompts_dir = get_project_prompts_dir(self.project_dir)
+        spec_in_prompts = (prompts_dir / "app_spec.txt").exists()
+        spec_in_root = (self.project_dir / "app_spec.txt").exists()
+        if spec_in_prompts or spec_in_root:
+            self._enforce_spec_wrapper()
+            print(f"  ✓ app_spec.txt", flush=True)
+        else:
+            print(f"  ✗ app_spec.txt — MISSING", flush=True)
+            debug_log.log("CHECKLIST", "Missing app_spec.txt")
+            all_ok = False
+
+        # 2. claude-progress.txt — auto-create if missing
+        progress_file = self.project_dir / "claude-progress.txt"
+        if not progress_file.exists():
+            progress_file.write_text("## Progress Log\n\n")
+            print(f"  ✓ claude-progress.txt (auto-created)", flush=True)
+            debug_log.log("CHECKLIST", "Auto-created claude-progress.txt")
+        else:
+            print(f"  ✓ claude-progress.txt", flush=True)
+
+        # 3. init.sh — warn if missing
+        init_sh = self.project_dir / "init.sh"
+        if init_sh.exists():
+            print(f"  ✓ init.sh", flush=True)
+        else:
+            print(f"  ✗ init.sh — MISSING (initializer may not have created it)", flush=True)
+            debug_log.log("CHECKLIST", "Missing init.sh")
+            all_ok = False
+
+        # 4. .git — warn if missing
+        git_dir = self.project_dir / ".git"
+        if git_dir.exists():
+            print(f"  ✓ .git", flush=True)
+        else:
+            print(f"  ✗ .git — MISSING (git init may not have run)", flush=True)
+            debug_log.log("CHECKLIST", "Missing .git directory")
+            all_ok = False
 
         print("  " + "-" * 40, flush=True)
         if all_ok:
             print("  All checks passed.", flush=True)
         else:
-            print("  Some files are missing — coding agents may still work.", flush=True)
+            print("  Some items missing — coding agents may still work.", flush=True)
         print(flush=True)
 
         debug_log.log("CHECKLIST", "Post-init checklist complete", all_ok=all_ok)
@@ -1289,6 +1344,9 @@ class ParallelOrchestrator:
                 pid=proc.pid,
                 feature_id=feature_id,
                 status=status)
+            # POST-AGENT GUARDRAILS: enforce invariants after testing too
+            self._post_agent_guardrails(
+                [feature_id] if feature_id else [], return_code, agent_type)
             # Signal main loop that an agent slot is available
             self._signal_agent_completed()
             return
@@ -1355,8 +1413,66 @@ class ParallelOrchestrator:
         else:
             print(f"Feature #{feature_id} {status}", flush=True)
 
+        # POST-AGENT GUARDRAILS: enforce what the LLM should have done
+        self._post_agent_guardrails(all_feature_ids, return_code, agent_type)
+
         # Signal main loop that an agent slot is available
         self._signal_agent_completed()
+
+    def _post_agent_guardrails(
+        self,
+        feature_ids: list[int],
+        return_code: int,
+        agent_type: Literal["coding", "testing"],
+    ):
+        """Enforce post-agent invariants that prompts alone can't guarantee.
+
+        Runs after every agent completion. Checks and fixes issues that
+        less capable LLMs (GLM, Ollama) may skip despite prompt instructions.
+        This is the "suspenders" to the prompt's "belt".
+        """
+        fids_str = ", ".join(f"#{fid}" for fid in feature_ids)
+        prefix = f"  [{agent_type.upper()} #{feature_ids[0]}]"
+
+        # 1. Progress file must still exist (agent may have accidentally deleted it)
+        progress_file = self.project_dir / "claude-progress.txt"
+        if not progress_file.exists():
+            progress_file.write_text("## Progress Log\n\n")
+            print(f"{prefix} ⚠ claude-progress.txt was missing — recreated", flush=True)
+            debug_log.log("GUARDRAIL", f"Recreated deleted claude-progress.txt after {agent_type} agent",
+                features=fids_str)
+
+        # 2. For successful coding agents: verify progress was updated
+        if agent_type == "coding" and return_code == 0:
+            try:
+                content = progress_file.read_text(encoding="utf-8")
+                # Check if the file has more than just the header
+                lines = [l for l in content.strip().split("\n") if l.strip()]
+                if len(lines) <= 1:
+                    debug_log.log("GUARDRAIL",
+                        f"Progress file has no entries after coding agent completed features {fids_str}")
+            except (OSError, PermissionError):
+                pass
+
+        # 3. For successful coding agents: verify git has recent commits
+        if agent_type == "coding" and return_code == 0:
+            try:
+                result = subprocess.run(
+                    ["git", "log", "--oneline", "-1", "--format=%ar"],
+                    cwd=str(self.project_dir),
+                    capture_output=True, text=True, timeout=5,
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    debug_log.log("GUARDRAIL", f"Last git commit: {result.stdout.strip()}",
+                        features=fids_str)
+                else:
+                    debug_log.log("GUARDRAIL",
+                        f"No git commits found after coding agent completed features {fids_str}")
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                pass  # git not available or timeout — don't block
+
+        # 4. Spec file integrity — always verify wrapper
+        self._enforce_spec_wrapper()
 
     def stop_feature(self, feature_id: int) -> tuple[bool, str]:
         """Stop a running coding agent and all its child processes."""

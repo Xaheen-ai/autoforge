@@ -49,6 +49,8 @@
     "code-generation"
   ],
   "scripts": {
+    "start": "python3 start_ui.py",
+    "build": "npm --prefix ui run build",
     "prepublishOnly": "npm --prefix ui install && npm --prefix ui run build"
   }
 }
