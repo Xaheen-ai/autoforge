@@ -636,3 +636,53 @@ async def update_project_settings(name: str, settings: ProjectSettingsUpdate):
         prompts_dir=str(prompts_dir),
         default_concurrency=get_project_concurrency(name),
     )
+
+
+@router.post("/{name}/initialize-convex")
+async def initialize_convex(name: str):
+    """
+    Initialize Convex backend for a project.
+    
+    This endpoint:
+    1. Copies Convex schema templates to the project
+    2. Runs `npx convex dev` to create and deploy the Convex project
+    3. Extracts CONVEX_URL and writes it to the project's .env file
+    
+    Returns deployment information including the Convex URL.
+    """
+    _init_imports()
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    # Check if already initialized
+    from server.services.convex_init import check_convex_initialized, initialize_convex_for_project, ConvexInitError
+    
+    if await check_convex_initialized(project_dir):
+        raise HTTPException(
+            status_code=409,
+            detail="Convex is already initialized for this project. Check .env.local for CONVEX_URL."
+        )
+    
+    # Initialize Convex
+    try:
+        convex_info = await initialize_convex_for_project(project_dir, name)
+        return {
+            "success": True,
+            "message": "Convex initialized successfully",
+            **convex_info
+        }
+    except ConvexInitError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error during Convex initialization: {e}"
+        )

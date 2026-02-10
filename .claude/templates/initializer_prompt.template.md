@@ -19,9 +19,24 @@ This number was determined during spec creation and must be followed precisely. 
 
 ---
 
+---
+
+## BACKEND CONFIGURATION
+
+This project uses the **[BACKEND_TYPE]** backend for feature storage.
+
+**Backend Types:**
+- **sqlite**: Features stored in local SQLite database (default)
+- **markdown**: Features stored in `features.md` file (LLM-friendly)
+- **convex**: Features stored in Convex Cloud (real-time, scalable)
+
+**Important:** Use the `feature_create_bulk` tool regardless of backend type. The API handles storage automatically.
+
+---
+
 ### CRITICAL FIRST TASK: Create Features
 
-Based on `app_spec.txt`, create features using the feature_create_bulk tool. The features are stored in a SQLite database,
+Based on `app_spec.txt`, create features using the feature_create_bulk tool. The features are stored using the configured backend,
 which is the single source of truth for what needs to be built.
 
 **Creating Features:**
