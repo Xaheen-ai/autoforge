@@ -17,8 +17,8 @@ ls -la
 # 3. Read the project specification to understand what you're building
 cat app_spec.txt
 
-# 4. Read progress notes from previous sessions (last 500 lines to avoid context overflow)
-tail -500 claude-progress.txt
+# 4. Read progress notes from previous sessions (touch if missing, then read last 500 lines)
+touch claude-progress.txt && tail -500 claude-progress.txt
 
 # 5. Check recent git history
 git log --oneline -20
@@ -73,6 +73,26 @@ Use the feature_skip tool with feature_id={id}
 
 Document the SPECIFIC external blocker in `claude-progress.txt`. "Functionality not built" is NEVER a valid reason.
 
+### STEP 3.5: ANALYSE THE CODEBASE (MANDATORY BEFORE CODING)
+
+Before writing any code, understand the existing project:
+
+```bash
+# 1. Understand the directory structure
+find . -type f -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.jsx' -o -name '*.py' | head -60
+
+# 2. Find files related to the feature you're implementing
+grep -rl "[keyword from feature name]" src/ --include='*.ts' --include='*.tsx' 2>/dev/null | head -20
+
+# 3. Check existing routes/pages/components
+ls src/pages/ src/routes/ src/components/ 2>/dev/null
+
+# 4. Check existing API endpoints or backend structure
+ls src/api/ src/server/ routes/ 2>/dev/null
+```
+
+**Why:** Without this step you risk duplicating existing code, creating conflicting implementations, or breaking working features. Understand first, then build.
+
 ### STEP 4: IMPLEMENT THE FEATURE
 
 Implement the chosen feature thoroughly:
@@ -117,6 +137,7 @@ Use browser automation tools:
 - **Server Restart:** For data features, run STEP 5.7 - data persists across server restart
 - **Navigation:** All buttons link to existing routes, no 404s, back button works, edit/view/delete links have correct IDs
 - **Integration:** Zero JS console errors, no 500s in network tab, API data matches UI, loading/error states work
+- **Progress Updated:** You MUST append to `claude-progress.txt` after each feature (Step 8). Verify the file exists and was written to.
 
 ### STEP 5.6: MOCK DATA DETECTION (Before marking passing)
 
@@ -147,6 +168,25 @@ Use the feature_mark_passing tool with feature_id=42
 
 **ONLY MARK A FEATURE AS PASSING AFTER VERIFICATION WITH SCREENSHOTS.**
 
+### STEP 6.5: PER-FEATURE PROGRESS REPORT (MANDATORY)
+
+**Immediately after marking a feature, append to `claude-progress.txt`.**
+
+Use the Write or Edit tool to append (NOT overwrite) a block like this:
+
+```
+### Feature #XX: [Feature Name]
+- Status: PASSED / FAILED
+- Implementation: [what was built/changed]
+- Key files: [list modified files]
+- Issues: [bugs found, workarounds, design decisions]
+- Context for next agent: [anything the next agent needs to know]
+```
+
+**Verify** your update: `tail -8 claude-progress.txt`
+
+This is the project's memory. **Every feature must leave a trace.**
+
 ### STEP 7: COMMIT YOUR PROGRESS
 
 Make a descriptive git commit.
@@ -168,25 +208,30 @@ git add .
 git commit -m "feat: implement [feature name] with browser verification"
 ```
 
-### STEP 8: UPDATE PROGRESS NOTES
+### STEP 8: SESSION SUMMARY (MANDATORY — DO NOT SKIP)
 
-Update `claude-progress.txt` with:
+If you implemented multiple features or are ending your session, append a session
+summary to `claude-progress.txt` using the Write or Edit tool (append, NOT overwrite):
 
-- What you accomplished this session
-- Which test(s) you completed
-- Any issues discovered or fixed
-- What should be worked on next
-- Current completion status (e.g., "45/200 tests passing")
+```
+## Session Summary
+- Features attempted: #XX, #YY
+- Overall progress: XX/YYY features passing
+- Blockers or risks: [anything that needs attention]
+- Recommended next: [which features to tackle next]
+```
+
+**Verify**: `tail -5 claude-progress.txt`
 
 ### STEP 9: END SESSION CLEANLY
 
-Before context fills up:
+Before context fills up, verify ALL of these:
 
-1. Commit all working code
-2. Update claude-progress.txt
-3. Mark features as passing if tests verified
-4. Ensure no uncommitted changes
-5. Leave app in working state (no broken features)
+1. ✅ Commit all working code
+2. ✅ `claude-progress.txt` updated (run `tail -3 claude-progress.txt` to confirm)
+3. ✅ Features marked as passing if tests verified
+4. ✅ No uncommitted changes (`git status` is clean)
+5. ✅ App in working state (no broken features)
 
 ---
 

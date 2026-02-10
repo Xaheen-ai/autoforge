@@ -5,6 +5,7 @@ import { NewProjectModal } from './NewProjectModal'
 import { ConfirmDialog } from './ConfirmDialog'
 import { useDeleteProject } from '../hooks/useProjects'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ interface ProjectSelectorProps {
   onSelectProject: (name: string | null) => void
   isLoading: boolean
   onSpecCreatingChange?: (isCreating: boolean) => void
+  className?: string
 }
 
 export function ProjectSelector({
@@ -28,6 +30,7 @@ export function ProjectSelector({
   onSelectProject,
   isLoading,
   onSpecCreatingChange,
+  className,
 }: ProjectSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showNewProjectModal, setShowNewProjectModal] = useState(false)
@@ -73,7 +76,7 @@ export function ProjectSelector({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="min-w-[140px] sm:min-w-[200px] justify-between"
+            className={cn("min-w-[140px] sm:min-w-[200px] justify-between", className)}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -101,9 +104,8 @@ export function ProjectSelector({
               {projects.map(project => (
                 <DropdownMenuItem
                   key={project.name}
-                  className={`flex items-center justify-between cursor-pointer ${
-                    project.name === selectedProject ? 'bg-primary/10' : ''
-                  }`}
+                  className={`flex items-center justify-between cursor-pointer ${project.name === selectedProject ? 'bg-primary/10' : ''
+                    }`}
                   onSelect={() => {
                     onSelectProject(project.name)
                   }}

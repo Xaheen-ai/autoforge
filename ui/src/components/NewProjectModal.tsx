@@ -11,7 +11,7 @@
 
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Bot, FileEdit, ArrowRight, ArrowLeft, Loader2, CheckCircle2, Folder } from 'lucide-react'
+import { Bot, FileEdit, ArrowRight, ArrowLeft, Loader2, CheckCircle2, Folder, GitBranch, FolderOpen } from 'lucide-react'
 import { useCreateProject } from '../hooks/useProjects'
 import { SpecCreationChat } from './SpecCreationChat'
 import { FolderBrowser } from './FolderBrowser'
@@ -33,8 +33,9 @@ import { Card, CardContent } from '@/components/ui/card'
 
 type InitializerStatus = 'idle' | 'starting' | 'error'
 
-type Step = 'name' | 'folder' | 'method' | 'chat' | 'complete'
+type Step = 'name' | 'source' | 'github' | 'folder' | 'method' | 'chat' | 'complete'
 type SpecMethod = 'claude' | 'manual'
+type ProjectSource = 'fresh' | 'github' | 'existing'
 
 interface NewProjectModalProps {
   isOpen: boolean
@@ -57,6 +58,11 @@ export function NewProjectModal({
   const [initializerStatus, setInitializerStatus] = useState<InitializerStatus>('idle')
   const [initializerError, setInitializerError] = useState<string | null>(null)
   const [yoloModeSelected, setYoloModeSelected] = useState(false)
+  const [projectSource, setProjectSource] = useState<ProjectSource | null>(null)
+  const [githubUrl, setGithubUrl] = useState('')
+  const [githubBranch, setGithubBranch] = useState('')
+  const [githubToken, setGithubToken] = useState('')
+  const [githubError, setGithubError] = useState<string | null>(null)
 
   // Suppress unused variable warning - specMethod may be used in future
   void _specMethod
@@ -86,7 +92,7 @@ export function NewProjectModal({
     }
 
     setError(null)
-    changeStep('folder')
+    changeStep('source')
   }
 
   const handleFolderSelect = (path: string) => {
@@ -188,6 +194,11 @@ export function NewProjectModal({
     setInitializerStatus('idle')
     setInitializerError(null)
     setYoloModeSelected(false)
+    setProjectSource(null)
+    setGithubUrl('')
+    setGithubBranch('')
+    setGithubToken('')
+    setGithubError(null)
     onClose()
   }
 
@@ -196,9 +207,48 @@ export function NewProjectModal({
       changeStep('folder')
       setSpecMethod(null)
     } else if (step === 'folder') {
-      changeStep('name')
+      if (projectSource === 'github') {
+        changeStep('github')
+      } else {
+        changeStep('source')
+      }
       setProjectPath(null)
+    } else if (step === 'github') {
+      changeStep('source')
+      setGithubUrl('')
+      setGithubBranch('')
+      setGithubToken('')
+      setGithubError(null)
+    } else if (step === 'source') {
+      changeStep('name')
+      setProjectSource(null)
     }
+  }
+
+  const handleSourceSelect = (source: ProjectSource) => {
+    setProjectSource(source)
+    if (source === 'fresh' || source === 'existing') {
+      changeStep('folder')
+    } else if (source === 'github') {
+      changeStep('github')
+    }
+  }
+
+
+  const handleGithubSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmedUrl = githubUrl.trim()
+    if (!trimmedUrl) {
+      setGithubError('Please enter a repository URL')
+      return
+    }
+    // Relaxed check: must start with https:// or git@
+    if (!trimmedUrl.startsWith('https://') && !trimmedUrl.startsWith('git@')) {
+      setGithubError('URL must start with https:// or git@')
+      return
+    }
+    setGithubError(null)
+    changeStep('folder')
   }
 
   // Full-screen chat view - use portal to render at body level
@@ -255,6 +305,8 @@ export function NewProjectModal({
         <DialogHeader>
           <DialogTitle>
             {step === 'name' && 'Create New Project'}
+            {step === 'source' && 'Choose Project Source'}
+            {step === 'github' && 'Clone from GitHub'}
             {step === 'method' && 'Choose Setup Method'}
             {step === 'complete' && 'Project Created!'}
           </DialogTitle>
@@ -294,7 +346,151 @@ export function NewProjectModal({
           </form>
         )}
 
-        {/* Step 2: Spec Method */}
+        {/* Step 2: Project Source */}
+        {step === 'source' && (
+          <div className="space-y-4">
+            <DialogDescription>
+              Where should the project code come from?
+            </DialogDescription>
+
+            <div className="space-y-3">
+              {/* Start Fresh */}
+              <Card
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleSourceSelect('fresh')}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Folder size={24} className="text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">Start Fresh</span>
+                        <Badge>Recommended</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Create a new empty project in a folder of your choice.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Clone from GitHub */}
+              <Card
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleSourceSelect('github')}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-secondary rounded-lg">
+                      <GitBranch size={24} className="text-secondary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold">Clone from GitHub</span>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Clone an existing repository from GitHub or any Git remote.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Use Existing Folder */}
+              <Card
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleSourceSelect('existing')}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-secondary rounded-lg">
+                      <FolderOpen size={24} className="text-secondary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold">Use Existing Folder</span>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Point to an existing codebase on your machine.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <DialogFooter className="sm:justify-start">
+              <Button variant="ghost" onClick={handleBack}>
+                <ArrowLeft size={16} />
+                Back
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
+
+        {/* Step 2b: GitHub URL */}
+        {step === 'github' && (
+          <form onSubmit={handleGithubSubmit} className="space-y-4">
+            <DialogDescription>
+              Enter the repository URL to clone.
+            </DialogDescription>
+
+            <div className="space-y-2">
+              <Label htmlFor="github-url">Repository URL</Label>
+              <Input
+                id="github-url"
+                type="text"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/user/repo.git"
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="github-branch">Branch (optional)</Label>
+              <Input
+                id="github-branch"
+                type="text"
+                value={githubBranch}
+                onChange={(e) => setGithubBranch(e.target.value)}
+                placeholder="main"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="github-token">Access Token (optional)</Label>
+              <Input
+                id="github-token"
+                type="password"
+                value={githubToken}
+                onChange={(e) => setGithubToken(e.target.value)}
+                placeholder="For private repositories"
+              />
+              <p className="text-xs text-muted-foreground">
+                Required only for private repos. Uses GITHUB_TOKEN from .env if not provided.
+              </p>
+            </div>
+
+            {githubError && (
+              <Alert variant="destructive">
+                <AlertDescription>{githubError}</AlertDescription>
+              </Alert>
+            )}
+
+            <DialogFooter>
+              <Button variant="ghost" onClick={handleBack} type="button">
+                <ArrowLeft size={16} />
+                Back
+              </Button>
+              <Button type="submit" disabled={!githubUrl.trim()}>
+                Next
+                <ArrowRight size={16} />
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+
+        {/* Step 3: Spec Method */}
         {step === 'method' && (
           <div className="space-y-4">
             <DialogDescription>

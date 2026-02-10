@@ -1042,6 +1042,60 @@ class ParallelOrchestrator:
             total_testing_agents=testing_count)
         return True, f"Started testing agent for features [{batch_str}]"
 
+    def _ensure_project_files(self):
+        """Ensure essential project files exist (model-agnostic).
+
+        Called before any coding agent runs, so that files like
+        claude-progress.txt are guaranteed to exist regardless of
+        which LLM model (Claude, GLM, Ollama) ran the initializer.
+        """
+        progress_file = self.project_dir / "claude-progress.txt"
+        if not progress_file.exists():
+            progress_file.write_text("## Progress Log\n\n")
+            print(f"  ✓ Created {progress_file.name}", flush=True)
+            debug_log.log("FILES", "Created missing claude-progress.txt")
+
+    def _post_init_checklist(self):
+        """Verify essential project artefacts after initializer completes.
+
+        Logs warnings for anything the initializer should have created but
+        didn't.  Programmatically fixes what it can (e.g. progress file).
+        """
+        print("\n  POST-INITIALIZATION CHECKLIST", flush=True)
+        print("  " + "-" * 40, flush=True)
+
+        checks = [
+            ("app_spec.txt", False),       # should already exist, just verify
+            ("init.sh", False),             # initializer should create this
+            ("claude-progress.txt", True),  # auto-create if missing
+            (".git", False),                # git init should have run
+        ]
+
+        all_ok = True
+        for filename, auto_create in checks:
+            path = self.project_dir / filename
+            if path.exists():
+                print(f"  ✓ {filename}", flush=True)
+            elif auto_create:
+                # Programmatically create the file
+                if filename == "claude-progress.txt":
+                    path.write_text("## Progress Log\n\n")
+                print(f"  ✓ {filename} (auto-created)", flush=True)
+                debug_log.log("CHECKLIST", f"Auto-created missing {filename}")
+            else:
+                print(f"  ✗ {filename} — MISSING (initializer may not have created it)", flush=True)
+                debug_log.log("CHECKLIST", f"Missing expected file: {filename}")
+                all_ok = False
+
+        print("  " + "-" * 40, flush=True)
+        if all_ok:
+            print("  All checks passed.", flush=True)
+        else:
+            print("  Some files are missing — coding agents may still work.", flush=True)
+        print(flush=True)
+
+        debug_log.log("CHECKLIST", "Post-init checklist complete", all_ok=all_ok)
+
     async def _run_initializer(self) -> bool:
         """Run initializer agent as blocking subprocess.
 
@@ -1409,6 +1463,9 @@ class ParallelOrchestrator:
             print("=" * 70, flush=True)
             print(flush=True)
 
+            # Run post-initialization checklist
+            self._post_init_checklist()
+
             # CRITICAL: Recreate database connection after initializer subprocess commits
             # The initializer runs as a subprocess and commits to the database file.
             # SQLAlchemy may have stale connections or cached state. Disposing the old
@@ -1441,6 +1498,9 @@ class ParallelOrchestrator:
                     first_10_features=feature_names)
             finally:
                 session.close()
+
+        # Ensure essential project files exist (even for resumed projects)
+        self._ensure_project_files()
 
         # Phase 2: Feature loop
         # Check for features to resume from previous session

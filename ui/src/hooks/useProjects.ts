@@ -272,6 +272,7 @@ const DEFAULT_SETTINGS: Settings = {
   api_base_url: null,
   api_has_auth_token: false,
   api_model: null,
+  github_has_token: false,
 }
 
 const DEFAULT_PROVIDERS: ProvidersResponse = {

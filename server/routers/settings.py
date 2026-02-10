@@ -7,6 +7,7 @@ Settings are stored in the registry database and shared across all projects.
 """
 
 import mimetypes
+import os
 import sys
 
 from fastapi import APIRouter
@@ -117,6 +118,7 @@ async def get_settings():
         api_base_url=all_settings.get("api_base_url"),
         api_has_auth_token=bool(all_settings.get("api_auth_token")),
         api_model=all_settings.get("api_model"),
+        github_has_token=bool(all_settings.get("github_token") or os.getenv("GITHUB_TOKEN")),
     )
 
 
@@ -163,6 +165,9 @@ async def update_settings(update: SettingsUpdate):
     if update.api_model is not None:
         set_setting("api_model", update.api_model)
 
+    if update.github_token is not None:
+        set_setting("github_token", update.github_token)
+
     # Return updated settings
     all_settings = get_all_settings()
     api_provider = all_settings.get("api_provider", "claude")
@@ -181,4 +186,5 @@ async def update_settings(update: SettingsUpdate):
         api_base_url=all_settings.get("api_base_url"),
         api_has_auth_token=bool(all_settings.get("api_auth_token")),
         api_model=all_settings.get("api_model"),
+        github_has_token=bool(all_settings.get("github_token") or os.getenv("GITHUB_TOKEN")),
     )

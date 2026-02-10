@@ -95,6 +95,18 @@ After implementing code, you MUST run all available verification commands:
 
 Fix ALL issues before considering the implementation complete. Never leave linting errors, type errors, or failing tests.
 
+### Phase 4: Progress Reporting
+
+After every implementation session, you MUST:
+
+1. **Update `claude-progress.txt`** by appending (never overwriting) a progress entry:
+   - What was implemented
+   - Key files changed
+   - Issues found or decisions made
+   - What should be worked on next
+2. **Verify** the update: `tail -5 claude-progress.txt`
+3. This file is the project's cross-session memory. Skipping it means the next agent starts blind.
+
 ## Project-Specific Context
 
 For this project (autoforge):
@@ -130,3 +142,4 @@ Always check:
 6. ALWAYS verify your implementation compiles and passes checks before finishing
 7. ALWAYS use web search and fetch to get up-to-date information about libraries
 8. ALWAYS explore the codebase first to understand existing patterns
+9. ALWAYS update `claude-progress.txt` after implementation — this is the project's memory across sessions

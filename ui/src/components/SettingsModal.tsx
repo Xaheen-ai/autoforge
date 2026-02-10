@@ -12,6 +12,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 interface SettingsModalProps {
@@ -151,11 +152,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   <button
                     key={themeOption.id}
                     onClick={() => setTheme(themeOption.id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors text-left ${
-                      theme === themeOption.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                    }`}
+                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors text-left ${theme === themeOption.id
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                      }`}
                   >
                     {/* Color swatches */}
                     <div className="flex gap-0.5 shrink-0">
@@ -223,11 +223,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     key={provider.id}
                     onClick={() => handleProviderChange(provider.id)}
                     disabled={isSaving}
-                    className={`py-1.5 px-3 text-sm font-medium rounded-md border transition-colors ${
-                      currentProvider === provider.id
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-background text-foreground border-border hover:bg-muted'
-                    } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`py-1.5 px-3 text-sm font-medium rounded-md border transition-colors ${currentProvider === provider.id
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background text-foreground border-border hover:bg-muted'
+                      } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {provider.name.split(' (')[0]}
                   </button>
@@ -319,11 +318,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       key={model.id}
                       onClick={() => handleModelChange(model.id)}
                       disabled={isSaving}
-                      className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
-                        (settings.api_model ?? settings.model) === model.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-background text-foreground hover:bg-muted'
-                      } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${(settings.api_model ?? settings.model) === model.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-background text-foreground hover:bg-muted'
+                        } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <span className="block">{model.name}</span>
                       <span className="block text-xs opacity-60">{model.id}</span>
@@ -403,11 +401,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     key={ratio}
                     onClick={() => handleTestingRatioChange(ratio)}
                     disabled={isSaving}
-                    className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
-                      settings.testing_agent_ratio === ratio
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background text-foreground hover:bg-muted'
-                    } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${settings.testing_agent_ratio === ratio
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-background text-foreground hover:bg-muted'
+                      } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {ratio}
                   </button>
@@ -427,16 +424,53 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     key={size}
                     onClick={() => handleBatchSizeChange(size)}
                     disabled={isSaving}
-                    className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${
-                      (settings.batch_size ?? 1) === size
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background text-foreground hover:bg-muted'
-                    } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${(settings.batch_size ?? 1) === size
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-background text-foreground hover:bg-muted'
+                      } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {size}
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* GitHub Token */}
+            <div className="space-y-2">
+              <Label className="font-medium">GitHub Token</Label>
+              <p className="text-sm text-muted-foreground">
+                Personal Access Token for cloning private repositories.
+                {settings.github_has_token && (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-green-100 dark:bg-green-900 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-200">
+                    Configured
+                  </span>
+                )}
+              </p>
+              <Input
+                type="password"
+                placeholder={settings.github_has_token ? '••••••••' : 'ghp_xxxxxxxxxxxx'}
+                onBlur={(e) => {
+                  const val = e.target.value.trim()
+                  if (val) {
+                    updateSettings.mutate({ github_token: val })
+                    e.target.value = ''
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const input = e.target as HTMLInputElement
+                    const val = input.value.trim()
+                    if (val) {
+                      updateSettings.mutate({ github_token: val })
+                      input.value = ''
+                    }
+                  }
+                }}
+                disabled={isSaving}
+              />
+              <p className="text-xs text-muted-foreground">
+                Also reads from GITHUB_TOKEN environment variable in .env
+              </p>
             </div>
 
             {/* Update Error */}

@@ -266,6 +266,9 @@ PLAYWRIGHT_TOOLS = [
 # Built-in tools available to agents.
 # WebFetch and WebSearch are included so coding agents can look up current
 # documentation for frameworks and libraries they are implementing.
+# In offline mode (AUTOFORGE_OFFLINE_MODE=1), web tools are excluded.
+_OFFLINE_MODE = os.environ.get("AUTOFORGE_OFFLINE_MODE", "").lower() in ("1", "true", "yes")
+
 BUILTIN_TOOLS = [
     "Read",
     "Write",
@@ -273,9 +276,9 @@ BUILTIN_TOOLS = [
     "Glob",
     "Grep",
     "Bash",
-    "WebFetch",
-    "WebSearch",
 ]
+if not _OFFLINE_MODE:
+    BUILTIN_TOOLS.extend(["WebFetch", "WebSearch"])
 
 
 def create_client(
@@ -348,8 +351,10 @@ def create_client(
         # by the bash_security_hook (see security.py for allowed commands)
         "Bash(*)",
         # Allow web tools for looking up framework/library documentation
-        "WebFetch(*)",
-        "WebSearch(*)",
+        *([
+            "WebFetch(*)",
+            "WebSearch(*)",
+        ] if not _OFFLINE_MODE else []),
         # Allow Feature MCP tools for feature management
         *ALL_FEATURE_MCP_TOOLS,
     ]
@@ -426,7 +431,7 @@ def create_client(
         # Browser and headless mode configurable via environment variables
         browser = get_playwright_browser()
         playwright_args = [
-            "@playwright/mcp@latest",
+            "@playwright/mcp@0.0.30",
             "--viewport-size", "1280x720",
             "--browser", browser,
         ]

@@ -1,0 +1,58 @@
+# AutoForge Docker Compose
+# ========================
+# Single-service deployment for VPS
+#
+# Usage:
+#   cp .env.example .env  # Configure your API keys
+#   docker compose up -d
+#
+# Data is persisted in Docker volumes for projects and the SQLite database.
+
+services:
+  autoforge:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: autoforge
+    restart: unless-stopped
+    ports:
+      - "${AUTOFORGE_PORT:-8888}:8888"
+    volumes:
+      # Persist projects and database across container restarts
+      - autoforge-projects:/data/projects
+      - autoforge-db:/data/db
+      # Mount host projects directory (optional - for accessing existing projects)
+      # - /path/to/your/projects:/data/projects
+    environment:
+      # API Configuration (required - set in .env file)
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-}
+      - ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_DEFAULT_OPUS_MODEL=${ANTHROPIC_DEFAULT_OPUS_MODEL:-}
+      - ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL:-}
+      - ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-}
+      # Vertex AI (optional)
+      - CLAUDE_CODE_USE_VERTEX=${CLAUDE_CODE_USE_VERTEX:-}
+      - CLOUD_ML_REGION=${CLOUD_ML_REGION:-}
+      - ANTHROPIC_VERTEX_PROJECT_ID=${ANTHROPIC_VERTEX_PROJECT_ID:-}
+      # GitHub (optional)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # Offline mode (optional)
+      - AUTOFORGE_OFFLINE_MODE=${AUTOFORGE_OFFLINE_MODE:-0}
+      # Playwright
+      - PLAYWRIGHT_BROWSER=${PLAYWRIGHT_BROWSER:-chromium}
+      - PLAYWRIGHT_HEADLESS=true
+      # Remote access (always enabled in Docker)
+      - AUTOFORGE_ALLOW_REMOTE=1
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  autoforge-projects:
+    driver: local
+  autoforge-db:
+    driver: local

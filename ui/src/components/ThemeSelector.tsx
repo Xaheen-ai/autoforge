@@ -8,9 +8,10 @@ interface ThemeSelectorProps {
   themes: ThemeOption[]
   currentTheme: ThemeId
   onThemeChange: (theme: ThemeId) => void
+  side?: 'top' | 'bottom'
 }
 
-export function ThemeSelector({ themes, currentTheme, onThemeChange }: ThemeSelectorProps) {
+export function ThemeSelector({ themes, currentTheme, onThemeChange, side = 'bottom' }: ThemeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [previewTheme, setPreviewTheme] = useState<ThemeId | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -116,7 +117,8 @@ export function ThemeSelector({ themes, currentTheme, onThemeChange }: ThemeSele
       {/* Dropdown */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-56 bg-popover border-2 border-border rounded-lg shadow-lg z-50 animate-slide-in-down overflow-hidden"
+          className={`absolute right-0 w-56 bg-popover border-2 border-border rounded-lg shadow-lg z-50 animate-slide-in-down overflow-hidden ${side === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+            }`}
           role="menu"
           aria-orientation="vertical"
         >
@@ -127,11 +129,10 @@ export function ThemeSelector({ themes, currentTheme, onThemeChange }: ThemeSele
                 onClick={() => handleThemeClick(theme.id)}
                 onMouseEnter={() => handleThemeHover(theme.id)}
                 onMouseLeave={() => setPreviewTheme(null)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${
-                  currentTheme === theme.id
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors ${currentTheme === theme.id
                     ? 'bg-primary/10 text-foreground'
                     : 'hover:bg-muted text-foreground'
-                }`}
+                  }`}
                 role="menuitem"
               >
                 {/* Color swatches */}

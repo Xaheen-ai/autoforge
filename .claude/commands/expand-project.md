@@ -215,6 +215,17 @@ Once features are created, tell the user:
 >
 > Would you like to add more features, or are you done for now?"
 
+**Update progress file:** After creating features, append to `claude-progress.txt`:
+
+```
+## Project Expansion
+- Added N new features: [brief list of categories/areas]
+- Total features now: [count]
+- Next: agent will implement these in priority order
+```
+
+This ensures the coding agent knows what was just added and why.
+
 If they want to add more, go back to Phase 1.
 
 ---

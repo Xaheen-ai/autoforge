@@ -423,6 +423,7 @@ class SettingsResponse(BaseModel):
     api_base_url: str | None = None
     api_has_auth_token: bool = False  # Never expose actual token
     api_model: str | None = None
+    github_has_token: bool = False  # True when GITHUB_TOKEN is configured
 
 
 class ModelsResponse(BaseModel):
@@ -442,6 +443,7 @@ class SettingsUpdate(BaseModel):
     api_base_url: str | None = Field(None, max_length=500)
     api_auth_token: str | None = Field(None, max_length=500)  # Write-only, never returned
     api_model: str | None = Field(None, max_length=200)
+    github_token: str | None = Field(None, max_length=500)  # Write-only, never returned
 
     @field_validator('api_base_url')
     @classmethod
@@ -638,3 +640,35 @@ class NextRunResponse(BaseModel):
     next_end: datetime | None  # UTC (latest end if overlapping)
     is_currently_running: bool
     active_schedule_count: int
+
+
+# ============================================================================
+# Git / GitHub Schemas
+# ============================================================================
+
+
+class GitInitRequest(BaseModel):
+    """Request schema for initializing a git repository."""
+    default_branch: str = "main"
+
+
+class GitRemoteRequest(BaseModel):
+    """Request schema for configuring a git remote."""
+    remote_url: str = Field(..., min_length=1, max_length=500)
+    remote_name: str = Field(default="origin", max_length=50)
+    token: str | None = Field(None, max_length=500, description="Optional auth token; falls back to GITHUB_TOKEN env var")
+
+
+class GitRepoInfo(BaseModel):
+    """Git repository information."""
+    initialized: bool = False
+    branch: str | None = None
+    remotes: dict[str, str] = Field(default_factory=dict)
+    has_commits: bool = False
+    last_commit: dict | None = None
+
+
+class GitActionResponse(BaseModel):
+    """Response for git actions."""
+    success: bool
+    message: str = ""

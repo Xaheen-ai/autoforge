@@ -18,7 +18,13 @@ Please create a comprehensive checkpoint commit with the following steps:
    - Add ALL untracked files (new files)
    - Use `git add -A` or `git add .` to stage everything
 
-4. **Create a detailed commit message**:
+4. **Update progress file**:
+   - If `claude-progress.txt` exists, append a checkpoint entry to it
+   - Include what was accomplished since the last checkpoint
+   - If it doesn't exist, create it with a `## Progress Log` header and the checkpoint entry
+   - **The progress file is the project's memory across agent sessions — never skip this**
+
+5. **Create a detailed commit message**:
 
    - **First line**: Write a clear, concise summary (50-72 chars) describing the primary change
      - Use imperative mood (e.g., "Add feature" not "Added feature")

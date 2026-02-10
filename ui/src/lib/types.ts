@@ -557,6 +557,7 @@ export interface Settings {
   api_base_url: string | null
   api_has_auth_token: boolean
   api_model: string | null
+  github_has_token: boolean
 }
 
 export interface SettingsUpdate {
@@ -569,10 +570,34 @@ export interface SettingsUpdate {
   api_base_url?: string
   api_auth_token?: string
   api_model?: string
+  github_token?: string
 }
 
 export interface ProjectSettingsUpdate {
   default_concurrency?: number
+}
+
+// ============================================================================
+// Git Types
+// ============================================================================
+
+export interface GitCommitInfo {
+  hash: string
+  message: string
+  date: string
+}
+
+export interface GitRepoInfo {
+  initialized: boolean
+  branch: string | null
+  remotes: Record<string, string>
+  has_commits: boolean
+  last_commit: GitCommitInfo | null
+}
+
+export interface GitActionResponse {
+  success: boolean
+  message: string
 }
 
 // ============================================================================

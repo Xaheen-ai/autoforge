@@ -5,7 +5,7 @@ import { useProjectWebSocket } from './hooks/useWebSocket'
 import { useFeatureSound } from './hooks/useFeatureSound'
 import { useCelebration } from './hooks/useCelebration'
 import { useTheme } from './hooks/useTheme'
-import { ProjectSelector } from './components/ProjectSelector'
+import { Sidebar } from './components/Sidebar'
 import { KanbanBoard } from './components/KanbanBoard'
 import { AgentControl } from './components/AgentControl'
 import { ProgressDashboard } from './components/ProgressDashboard'
@@ -21,14 +21,14 @@ import { ExpandProjectModal } from './components/ExpandProjectModal'
 import { SpecCreationChat } from './components/SpecCreationChat'
 import { SettingsModal } from './components/SettingsModal'
 import { DevServerControl } from './components/DevServerControl'
+import { GitPanel } from './components/GitPanel'
 import { ViewToggle, type ViewMode } from './components/ViewToggle'
 import { DependencyGraph } from './components/DependencyGraph'
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
-import { ThemeSelector } from './components/ThemeSelector'
 import { ResetProjectModal } from './components/ResetProjectModal'
 import { ProjectSetupRequired } from './components/ProjectSetupRequired'
 import { getDependencyGraph, startAgent } from './lib/api'
-import { Loader2, Settings, Moon, Sun, RotateCcw, BookOpen } from 'lucide-react'
+import { Loader2, RotateCcw } from 'lucide-react'
 import type { Feature } from './lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -181,7 +181,7 @@ function App() {
 
       // E : Expand project with AI (when project selected, has spec and has features)
       if ((e.key === 'e' || e.key === 'E') && selectedProject && hasSpec && features &&
-          (features.pending.length + features.in_progress.length + features.done.length) > 0) {
+        (features.pending.length + features.in_progress.length + features.done.length) > 0) {
         e.preventDefault()
         setShowExpandProject(true)
       }
@@ -258,98 +258,60 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md text-foreground border-b-2 border-border">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <TooltipProvider>
-            {/* Row 1: Branding + Project + Utility icons */}
-            <div className="flex items-center gap-3">
-              {/* Logo and Title */}
-              <div className="flex items-center gap-2 shrink-0">
-                <img src="/logo.png" alt="AutoForge" className="h-9 w-9 rounded-full" />
-                <h1 className="font-display text-2xl font-bold tracking-tight uppercase hidden md:block">
-                  AutoForge
-                </h1>
+    <TooltipProvider>
+      <div className="flex h-screen bg-background overflow-hidden selection:bg-primary/20">
+        {/* Sidebar Navigation */}
+        <Sidebar
+          projects={projects ?? []}
+          selectedProject={selectedProject}
+          onSelectProject={handleSelectProject}
+          projectsLoading={projectsLoading}
+          onSpecCreatingChange={setIsSpecCreating}
+          onOpenSettings={() => setShowSettings(true)}
+          onOpenShortcuts={() => setShowKeyboardHelp(true)}
+          theme={theme}
+          onThemeChange={setTheme}
+          themes={themes}
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+        />
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 relative h-full">
+          {/* Project Context Header - Only visible when project is selected */}
+          {selectedProject && (
+            <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm px-6 flex items-center justify-between shrink-0 z-20">
+              {/* Left: Project Context */}
+              <div className="flex items-center gap-4">
+                <h2 className="font-display font-bold text-xl tracking-tight">
+                  {selectedProject}
+                </h2>
+
+                {/* Mode Badges */}
+                <div className="flex items-center gap-2">
+                  {settings?.ollama_mode && (
+                    <Badge variant="outline" className="gap-1.5 font-mono text-xs">
+                      <img src="/ollama.png" alt="Ollama" className="w-3.5 h-3.5" />
+                      Ollama
+                    </Badge>
+                  )}
+                  {settings?.glm_mode && (
+                    <Badge className="bg-purple-500 text-white hover:bg-purple-600 gap-1 font-mono text-xs">
+                      GLM
+                    </Badge>
+                  )}
+                </div>
               </div>
 
-              {/* Project selector */}
-              <ProjectSelector
-                projects={projects ?? []}
-                selectedProject={selectedProject}
-                onSelectProject={handleSelectProject}
-                isLoading={projectsLoading}
-                onSpecCreatingChange={setIsSpecCreating}
-              />
-
-              {/* Spacer */}
-              <div className="flex-1" />
-
-              {/* Ollama Mode Indicator */}
-              {selectedProject && settings?.ollama_mode && (
-                <div
-                  className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-card rounded border-2 border-border shadow-sm"
-                  title="Using Ollama local models"
-                >
-                  <img src="/ollama.png" alt="Ollama" className="w-5 h-5" />
-                  <span className="text-xs font-bold text-foreground">Ollama</span>
-                </div>
-              )}
-
-              {/* GLM Mode Badge */}
-              {selectedProject && settings?.glm_mode && (
-                <Badge
-                  className="hidden sm:inline-flex bg-purple-500 text-white hover:bg-purple-600"
-                  title="Using GLM API"
-                >
-                  GLM
-                </Badge>
-              )}
-
-              {/* Utility icons - always visible */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => window.open('https://autoforge.cc', '_blank')}
-                    variant="outline"
-                    size="sm"
-                    aria-label="Open Documentation"
-                  >
-                    <BookOpen size={18} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Docs</TooltipContent>
-              </Tooltip>
-
-              <ThemeSelector
-                themes={themes}
-                currentTheme={theme}
-                onThemeChange={setTheme}
-              />
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={toggleDarkMode}
-                    variant="outline"
-                    size="sm"
-                    aria-label="Toggle dark mode"
-                  >
-                    {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Toggle theme</TooltipContent>
-              </Tooltip>
-            </div>
-
-            {/* Row 2: Project controls - only when a project is selected */}
-            {selectedProject && (
-              <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border/50">
+              {/* Right: Project Actions */}
+              <div className="flex items-center gap-3">
                 <AgentControl
                   projectName={selectedProject}
                   status={wsState.agentStatus}
                   defaultConcurrency={selectedProjectData?.default_concurrency}
                 />
+
+                <div className="h-6 w-px bg-border/50 mx-1" />
 
                 <DevServerControl
                   projectName={selectedProject}
@@ -357,268 +319,268 @@ function App() {
                   url={wsState.devServerUrl}
                 />
 
-                <div className="flex-1" />
+                <GitPanel projectName={selectedProject} />
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={() => setShowSettings(true)}
-                      variant="outline"
-                      size="sm"
-                      aria-label="Open Settings"
-                    >
-                      <Settings size={18} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Settings (,)</TooltipContent>
-                </Tooltip>
+                <div className="h-6 w-px bg-border/50 mx-1" />
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={() => setShowResetModal(true)}
-                      variant="outline"
-                      size="sm"
-                      aria-label="Reset Project"
-                      disabled={wsState.agentStatus === 'running'}
-                    >
-                      <RotateCcw size={18} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Reset (R)</TooltipContent>
-                </Tooltip>
+                <div className="flex items-center gap-1">
+                  {/* Reset Project */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => setShowResetModal(true)}
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-destructive"
+                        disabled={wsState.agentStatus === 'running'}
+                      >
+                        <RotateCcw size={18} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Reset Project (R)</TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
-            )}
-          </TooltipProvider>
-        </div>
-      </header>
+            </header>
+          )}
 
-      {/* Main Content */}
-      <main
-        className="max-w-7xl mx-auto px-4 py-8"
-        style={{ paddingBottom: debugOpen ? debugPanelHeight + 32 : COLLAPSED_DEBUG_PANEL_CLEARANCE }}
-      >
-        {!selectedProject ? (
-          <div className="text-center mt-12">
-            <h2 className="font-display text-2xl font-bold mb-2">
-              Welcome to AutoForge
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              Select a project from the dropdown above or create a new one to get started.
-            </p>
-          </div>
-        ) : !hasSpec ? (
-          <ProjectSetupRequired
-            projectName={selectedProject}
-            projectPath={selectedProjectData?.path}
-            onCreateWithClaude={() => setShowSpecChat(true)}
-            onEditManually={() => {
-              // Open debug panel for the user to see the project path
-              setDebugOpen(true)
-            }}
-          />
-        ) : (
-          <div className="space-y-8">
-            {/* Progress Dashboard */}
-            <ProgressDashboard
-              passing={progress.passing}
-              total={progress.total}
-              percentage={progress.percentage}
-              isConnected={wsState.isConnected}
-              logs={wsState.activeAgents.length === 0 ? wsState.logs : undefined}
-              agentStatus={wsState.activeAgents.length === 0 ? wsState.agentStatus : undefined}
-            />
-
-            {/* Agent Mission Control - shows orchestrator status and active agents in parallel mode */}
-            <AgentMissionControl
-              agents={wsState.activeAgents}
-              orchestratorStatus={wsState.orchestratorStatus}
-              recentActivity={wsState.recentActivity}
-              getAgentLogs={wsState.getAgentLogs}
-            />
-
-
-            {/* Initializing Features State - show when agent is running but no features yet */}
-            {features &&
-             features.pending.length === 0 &&
-             features.in_progress.length === 0 &&
-             features.done.length === 0 &&
-             wsState.agentStatus === 'running' && (
-              <Card className="p-8 text-center">
-                <CardContent className="p-0">
-                  <Loader2 size={32} className="animate-spin mx-auto mb-4 text-primary" />
-                  <h3 className="font-display font-bold text-xl mb-2">
-                    Initializing Features...
-                  </h3>
-                  <p className="text-muted-foreground">
-                    The agent is reading your spec and creating features. This may take a moment.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* View Toggle - only show when there are features */}
-            {features && (features.pending.length + features.in_progress.length + features.done.length) > 0 && (
-              <div className="flex justify-center">
-                <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+          {/* Scrollable Main Content */}
+          <main
+            className="flex-1 overflow-y-auto p-6 md:p-8 relative scroll-smooth"
+            style={{ paddingBottom: debugOpen ? debugPanelHeight + 32 : COLLAPSED_DEBUG_PANEL_CLEARANCE }}
+          >
+            {!selectedProject ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-8 max-w-lg mx-auto">
+                <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6">
+                  <img src="/logo.png" alt="AutoForge" className="w-12 h-12 opacity-80" />
+                </div>
+                <h2 className="font-display text-3xl font-bold mb-3">
+                  Welcome to AutoForge
+                </h2>
+                <p className="text-muted-foreground text-lg mb-8">
+                  Select a workspace from the sidebar to begin, or create a new project to start building.
+                </p>
+                <Button
+                  size="lg"
+                  onClick={() => document.querySelector<HTMLButtonElement>('[data-trigger="new-project"]')?.click()}
+                  className="hidden" // Hidden trigger for tutorial purposes if needed
+                >
+                  Get Started
+                </Button>
               </div>
-            )}
-
-            {/* Kanban Board or Dependency Graph based on view mode */}
-            {viewMode === 'kanban' ? (
-              <KanbanBoard
-                features={features}
-                onFeatureClick={setSelectedFeature}
-                onAddFeature={() => setShowAddFeature(true)}
-                onExpandProject={() => setShowExpandProject(true)}
-                activeAgents={wsState.activeAgents}
-                onCreateSpec={() => setShowSpecChat(true)}
-                hasSpec={hasSpec}
+            ) : !hasSpec ? (
+              <ProjectSetupRequired
+                projectName={selectedProject}
+                projectPath={selectedProjectData?.path}
+                onCreateWithClaude={() => setShowSpecChat(true)}
+                onEditManually={() => {
+                  setDebugOpen(true)
+                }}
               />
             ) : (
-              <Card className="overflow-hidden" style={{ height: '600px' }}>
-                {graphData ? (
-                  <DependencyGraph
-                    graphData={graphData}
-                    onNodeClick={handleGraphNodeClick}
-                    activeAgents={wsState.activeAgents}
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center">
-                    <Loader2 size={32} className="animate-spin text-primary" />
+              <div className="space-y-8 max-w-7xl mx-auto">
+                {/* Progress Dashboard */}
+                <ProgressDashboard
+                  passing={progress.passing}
+                  total={progress.total}
+                  percentage={progress.percentage}
+                  isConnected={wsState.isConnected}
+                  logs={wsState.activeAgents.length === 0 ? wsState.logs : undefined}
+                  agentStatus={wsState.activeAgents.length === 0 ? wsState.agentStatus : undefined}
+                />
+
+                {/* Agent Mission Control */}
+                <AgentMissionControl
+                  agents={wsState.activeAgents}
+                  orchestratorStatus={wsState.orchestratorStatus}
+                  recentActivity={wsState.recentActivity}
+                  getAgentLogs={wsState.getAgentLogs}
+                />
+
+                {/* Initializing State */}
+                {features &&
+                  features.pending.length === 0 &&
+                  features.in_progress.length === 0 &&
+                  features.done.length === 0 &&
+                  wsState.agentStatus === 'running' && (
+                    <Card className="p-12 text-center border-dashed">
+                      <CardContent className="p-0">
+                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Loader2 size={32} className="animate-spin text-primary" />
+                        </div>
+                        <h3 className="font-display font-bold text-xl mb-2">
+                          Synthesizing Features
+                        </h3>
+                        <p className="text-muted-foreground max-w-md mx-auto">
+                          The agent is analyzing your requirements and breaking them down into implementable features.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                {/* View Toggle */}
+                {features && (features.pending.length + features.in_progress.length + features.done.length) > 0 && (
+                  <div className="flex justify-center sticky top-0 z-10 py-4 -my-4 bg-background/80 backdrop-blur-sm">
+                    <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
                   </div>
                 )}
-              </Card>
+
+                {/* Kanban / Graph */}
+                {viewMode === 'kanban' ? (
+                  <KanbanBoard
+                    features={features}
+                    onFeatureClick={setSelectedFeature}
+                    onAddFeature={() => setShowAddFeature(true)}
+                    onExpandProject={() => setShowExpandProject(true)}
+                    activeAgents={wsState.activeAgents}
+                    onCreateSpec={() => setShowSpecChat(true)}
+                    hasSpec={hasSpec}
+                  />
+                ) : (
+                  <Card className="overflow-hidden border-2 shadow-sm" style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}>
+                    {graphData ? (
+                      <DependencyGraph
+                        graphData={graphData}
+                        onNodeClick={handleGraphNodeClick}
+                        activeAgents={wsState.activeAgents}
+                      />
+                    ) : (
+                      <div className="h-full flex items-center justify-center flex-col gap-3 text-muted-foreground">
+                        <Loader2 size={32} className="animate-spin text-primary" />
+                        <p>Mapping dependencies...</p>
+                      </div>
+                    )}
+                  </Card>
+                )}
+              </div>
             )}
+          </main>
+        </div>
+
+        {/* Modals & Overlays - Unchanged */}
+        {/* Add Feature Modal */}
+        {showAddFeature && selectedProject && (
+          <AddFeatureForm
+            projectName={selectedProject}
+            onClose={() => setShowAddFeature(false)}
+          />
+        )}
+
+        {/* Feature Detail Modal */}
+        {selectedFeature && selectedProject && (
+          <FeatureModal
+            feature={selectedFeature}
+            projectName={selectedProject}
+            onClose={() => setSelectedFeature(null)}
+          />
+        )}
+
+        {/* Expand Project Modal */}
+        {showExpandProject && selectedProject && hasSpec && (
+          <ExpandProjectModal
+            isOpen={showExpandProject}
+            projectName={selectedProject}
+            onClose={() => setShowExpandProject(false)}
+            onFeaturesAdded={() => {
+              queryClient.invalidateQueries({ queryKey: ['features', selectedProject] })
+            }}
+          />
+        )}
+
+        {/* Spec Creation Chat */}
+        {showSpecChat && selectedProject && (
+          <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <SpecCreationChat
+              projectName={selectedProject}
+              onComplete={async (_specPath, yoloMode) => {
+                setSpecInitializerStatus('starting')
+                try {
+                  await startAgent(selectedProject, {
+                    yoloMode: yoloMode ?? false,
+                    maxConcurrency: 3,
+                  })
+                  setShowSpecChat(false)
+                  setSpecInitializerStatus('idle')
+                  queryClient.invalidateQueries({ queryKey: ['projects'] })
+                  queryClient.invalidateQueries({ queryKey: ['features', selectedProject] })
+                } catch (err) {
+                  setSpecInitializerStatus('error')
+                  setSpecInitializerError(err instanceof Error ? err.message : 'Failed to start agent')
+                }
+              }}
+              onCancel={() => { setShowSpecChat(false); setSpecInitializerStatus('idle') }}
+              onExitToProject={() => { setShowSpecChat(false); setSpecInitializerStatus('idle') }}
+              initializerStatus={specInitializerStatus}
+              initializerError={specInitializerError}
+              onRetryInitializer={() => {
+                setSpecInitializerError(null)
+                setSpecInitializerStatus('idle')
+              }}
+            />
           </div>
         )}
-      </main>
 
-      {/* Add Feature Modal */}
-      {showAddFeature && selectedProject && (
-        <AddFeatureForm
-          projectName={selectedProject}
-          onClose={() => setShowAddFeature(false)}
-        />
-      )}
-
-      {/* Feature Detail Modal */}
-      {selectedFeature && selectedProject && (
-        <FeatureModal
-          feature={selectedFeature}
-          projectName={selectedProject}
-          onClose={() => setSelectedFeature(null)}
-        />
-      )}
-
-      {/* Expand Project Modal - AI-powered bulk feature creation */}
-      {showExpandProject && selectedProject && hasSpec && (
-        <ExpandProjectModal
-          isOpen={showExpandProject}
-          projectName={selectedProject}
-          onClose={() => setShowExpandProject(false)}
-          onFeaturesAdded={() => {
-            // Invalidate features query to refresh the kanban board
-            queryClient.invalidateQueries({ queryKey: ['features', selectedProject] })
-          }}
-        />
-      )}
-
-      {/* Spec Creation Chat - for creating spec from empty kanban */}
-      {showSpecChat && selectedProject && (
-        <div className="fixed inset-0 z-50 bg-background">
-          <SpecCreationChat
+        {/* Debug Log Viewer */}
+        {selectedProject && (
+          <DebugLogViewer
+            logs={wsState.logs}
+            devLogs={wsState.devLogs}
+            isOpen={debugOpen}
+            onToggle={() => setDebugOpen(!debugOpen)}
+            onClear={wsState.clearLogs}
+            onClearDevLogs={wsState.clearDevLogs}
+            onHeightChange={setDebugPanelHeight}
             projectName={selectedProject}
-            onComplete={async (_specPath, yoloMode) => {
-              setSpecInitializerStatus('starting')
-              try {
-                await startAgent(selectedProject, {
-                  yoloMode: yoloMode ?? false,
-                  maxConcurrency: 3,
-                })
-                // Success — close chat and refresh
-                setShowSpecChat(false)
-                setSpecInitializerStatus('idle')
-                queryClient.invalidateQueries({ queryKey: ['projects'] })
-                queryClient.invalidateQueries({ queryKey: ['features', selectedProject] })
-              } catch (err) {
-                setSpecInitializerStatus('error')
-                setSpecInitializerError(err instanceof Error ? err.message : 'Failed to start agent')
+            activeTab={debugActiveTab}
+            onTabChange={setDebugActiveTab}
+          />
+        )}
+
+        {/* Assistant Panel */}
+        {selectedProject && !showExpandProject && !isSpecCreating && !showSpecChat && (
+          <>
+            <AssistantFAB
+              onClick={() => setAssistantOpen(!assistantOpen)}
+              isOpen={assistantOpen}
+            />
+            <AssistantPanel
+              projectName={selectedProject}
+              isOpen={assistantOpen}
+              onClose={() => setAssistantOpen(false)}
+            />
+          </>
+        )}
+
+        {/* Settings Modal */}
+        <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+
+        {/* Shortcuts Help */}
+        <KeyboardShortcutsHelp isOpen={showKeyboardHelp} onClose={() => setShowKeyboardHelp(false)} />
+
+        {/* Reset Modal */}
+        {showResetModal && selectedProject && (
+          <ResetProjectModal
+            isOpen={showResetModal}
+            projectName={selectedProject}
+            onClose={() => setShowResetModal(false)}
+            onResetComplete={(wasFullReset) => {
+              if (wasFullReset) {
+                setShowSpecChat(true)
               }
             }}
-            onCancel={() => { setShowSpecChat(false); setSpecInitializerStatus('idle') }}
-            onExitToProject={() => { setShowSpecChat(false); setSpecInitializerStatus('idle') }}
-            initializerStatus={specInitializerStatus}
-            initializerError={specInitializerError}
-            onRetryInitializer={() => {
-              setSpecInitializerError(null)
-              setSpecInitializerStatus('idle')
-            }}
           />
-        </div>
-      )}
+        )}
 
-      {/* Debug Log Viewer - fixed to bottom */}
-      {selectedProject && (
-        <DebugLogViewer
-          logs={wsState.logs}
-          devLogs={wsState.devLogs}
-          isOpen={debugOpen}
-          onToggle={() => setDebugOpen(!debugOpen)}
-          onClear={wsState.clearLogs}
-          onClearDevLogs={wsState.clearDevLogs}
-          onHeightChange={setDebugPanelHeight}
-          projectName={selectedProject}
-          activeTab={debugActiveTab}
-          onTabChange={setDebugActiveTab}
-        />
-      )}
-
-      {/* Assistant FAB and Panel - hide when expand modal or spec creation is open */}
-      {selectedProject && !showExpandProject && !isSpecCreating && !showSpecChat && (
-        <>
-          <AssistantFAB
-            onClick={() => setAssistantOpen(!assistantOpen)}
-            isOpen={assistantOpen}
+        {/* Celebration */}
+        {wsState.celebration && (
+          <CelebrationOverlay
+            agentName={wsState.celebration.agentName}
+            featureName={wsState.celebration.featureName}
+            onComplete={wsState.clearCelebration}
           />
-          <AssistantPanel
-            projectName={selectedProject}
-            isOpen={assistantOpen}
-            onClose={() => setAssistantOpen(false)}
-          />
-        </>
-      )}
-
-      {/* Settings Modal */}
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
-
-      {/* Keyboard Shortcuts Help */}
-      <KeyboardShortcutsHelp isOpen={showKeyboardHelp} onClose={() => setShowKeyboardHelp(false)} />
-
-      {/* Reset Project Modal */}
-      {showResetModal && selectedProject && (
-        <ResetProjectModal
-          isOpen={showResetModal}
-          projectName={selectedProject}
-          onClose={() => setShowResetModal(false)}
-          onResetComplete={(wasFullReset) => {
-            // If full reset, the spec was deleted - show spec creation chat
-            if (wasFullReset) {
-              setShowSpecChat(true)
-            }
-          }}
-        />
-      )}
-
-      {/* Celebration Overlay - shows when a feature is completed by an agent */}
-      {wsState.celebration && (
-        <CelebrationOverlay
-          agentName={wsState.celebration.agentName}
-          featureName={wsState.celebration.featureName}
-          onComplete={wsState.clearCelebration}
-        />
-      )}
-    </div>
+        )}
+      </div>
+    </TooltipProvider>
   )
 }
 

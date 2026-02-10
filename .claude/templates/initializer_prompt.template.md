@@ -326,6 +326,7 @@ Base the script on the technology stack specified in `app_spec.txt`.
 Create a git repository and make your first commit with:
 
 - init.sh (environment setup script)
+- claude-progress.txt (create this file with "## Progress Log" at the top)
 - README.md (project overview and setup instructions)
 - Any initial project structure files
 
