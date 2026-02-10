@@ -99,8 +99,6 @@ def get_xaheen_dir(project_dir: Path) -> Path:
     """Return the ``.xaheen`` directory path.  Does NOT create it."""
     return project_dir / ".xaheen"
 
-# Backwards-compat alias
-get_autoforge_dir = get_xaheen_dir
 
 
 def ensure_xaheen_dir(project_dir: Path) -> Path:
@@ -117,8 +115,6 @@ def ensure_xaheen_dir(project_dir: Path) -> Path:
 
     return xaheen_dir
 
-# Backwards-compat alias
-ensure_autoforge_dir = ensure_xaheen_dir
 
 
 # ---------------------------------------------------------------------------

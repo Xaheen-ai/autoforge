@@ -37,13 +37,6 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/comp
 
 const STORAGE_KEY = 'xaheen-selected-project'
 const VIEW_MODE_KEY = 'xaheen-view-mode'
-// Migrate old localStorage keys
-if (!localStorage.getItem('xaheen-selected-project') && localStorage.getItem('autoforge-selected-project')) {
-  localStorage.setItem('xaheen-selected-project', localStorage.getItem('autoforge-selected-project')!)
-}
-if (!localStorage.getItem('xaheen-view-mode') && localStorage.getItem('autoforge-view-mode')) {
-  localStorage.setItem('xaheen-view-mode', localStorage.getItem('autoforge-view-mode')!)
-}
 
 // Bottom padding for main content when debug panel is collapsed (40px header + 8px margin)
 const COLLAPSED_DEBUG_PANEL_CLEARANCE = 48

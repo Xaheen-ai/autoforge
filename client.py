@@ -266,8 +266,8 @@ PLAYWRIGHT_TOOLS = [
 # Built-in tools available to agents.
 # WebFetch and WebSearch are included so coding agents can look up current
 # documentation for frameworks and libraries they are implementing.
-# In offline mode (XAHEEN_OFFLINE_MODE=1 or AUTOFORGE_OFFLINE_MODE=1), web tools are excluded.
-_OFFLINE_MODE = (os.environ.get("XAHEEN_OFFLINE_MODE", "") or os.environ.get("AUTOFORGE_OFFLINE_MODE", "")).lower() in ("1", "true", "yes")
+# In offline mode (XAHEEN_OFFLINE_MODE=1), web tools are excluded.
+_OFFLINE_MODE = os.environ.get("XAHEEN_OFFLINE_MODE", "").lower() in ("1", "true", "yes")
 
 BUILTIN_TOOLS = [
     "Read",

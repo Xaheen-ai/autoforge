@@ -95,7 +95,7 @@ logger = logging.getLogger(__name__)
 
 # Check if remote access is enabled via environment variable
 # Set by start_ui.py when --host is not 127.0.0.1
-ALLOW_REMOTE = (os.environ.get("XAHEEN_ALLOW_REMOTE", "") or os.environ.get("AUTOFORGE_ALLOW_REMOTE", "")).lower() in ("1", "true", "yes")
+ALLOW_REMOTE = os.environ.get("XAHEEN_ALLOW_REMOTE", "").lower() in ("1", "true", "yes")
 
 if ALLOW_REMOTE:
     logger.warning(

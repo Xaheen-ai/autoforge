@@ -9,10 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
 const ACTIVITY_COLLAPSED_KEY = 'xaheen-activity-collapsed'
-// Migrate old key
-if (!localStorage.getItem('xaheen-activity-collapsed') && localStorage.getItem('autoforge-activity-collapsed')) {
-  localStorage.setItem('xaheen-activity-collapsed', localStorage.getItem('autoforge-activity-collapsed')!)
-}
 
 interface AgentMissionControlProps {
   agents: ActiveAgent[]

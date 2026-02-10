@@ -4,8 +4,7 @@
   "description": "Autonomous coding agent with web UI - build complete apps with AI",
   "license": "AGPL-3.0",
   "bin": {
-    "xaheen": "./bin/xaheen.js",
-    "autoforge": "./bin/xaheen.js"
+    "xaheen": "./bin/xaheen.js"
   },
   "type": "module",
   "engines": {
@@ -26,7 +25,6 @@
     "agent.py",
     "auth.py",
     "xaheen_paths.py",
-    "autoforge_paths.py",
     "autonomous_agent_demo.py",
     "client.py",
     "env_constants.py",
