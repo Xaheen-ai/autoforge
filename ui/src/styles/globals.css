@@ -70,6 +70,38 @@
   --transition-fast: 150ms;
   --transition-normal: 250ms;
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Semantic status colors */
+  --color-success: oklch(0.58 0.17 145);
+  --color-success-foreground: oklch(0.985 0 0);
+  --color-warning: oklch(0.75 0.18 80);
+  --color-warning-foreground: oklch(0.2 0 0);
+  --color-info: oklch(0.6 0.16 250);
+  --color-info-foreground: oklch(0.985 0 0);
+
+  /* Category palette (theme-responsive replacements for hardcoded bg-*-500) */
+  --color-category-1: oklch(0.65 0.24 350);
+  --color-category-2: oklch(0.72 0.14 195);
+  --color-category-3: oklch(0.63 0.19 150);
+  --color-category-4: oklch(0.80 0.17 85);
+  --color-category-5: oklch(0.70 0.17 50);
+  --color-category-6: oklch(0.55 0.24 300);
+  --color-category-7: oklch(0.60 0.16 250);
+
+  /* Glow shadows */
+  --glow-primary: 0 0 20px oklch(0.67 0.16 245 / 0.3);
+  --glow-primary-sm: 0 0 10px oklch(0.67 0.16 245 / 0.2);
+  --glow-success: 0 0 20px oklch(0.58 0.17 145 / 0.3);
+
+  /* Extended shadows */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  /* Transition presets */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 400ms;
 }
 
 .dark {
@@ -123,6 +155,33 @@
   --color-status-pending: oklch(0.25 0.02 250);
   --color-status-progress: oklch(0.25 0.05 245);
   --color-status-done: oklch(0.25 0.05 245);
+
+  /* Semantic status colors - dark */
+  --color-success: oklch(0.65 0.19 145);
+  --color-success-foreground: oklch(0.15 0 0);
+  --color-warning: oklch(0.80 0.16 80);
+  --color-warning-foreground: oklch(0.15 0 0);
+  --color-info: oklch(0.68 0.16 250);
+  --color-info-foreground: oklch(0.15 0 0);
+
+  /* Category palette - dark (brighter for dark backgrounds) */
+  --color-category-1: oklch(0.72 0.22 350);
+  --color-category-2: oklch(0.78 0.12 195);
+  --color-category-3: oklch(0.70 0.17 150);
+  --color-category-4: oklch(0.85 0.15 85);
+  --color-category-5: oklch(0.76 0.15 50);
+  --color-category-6: oklch(0.65 0.22 300);
+  --color-category-7: oklch(0.68 0.16 250);
+
+  /* Glow shadows - dark (more prominent) */
+  --glow-primary: 0 0 25px oklch(0.67 0.16 245 / 0.4);
+  --glow-primary-sm: 0 0 12px oklch(0.67 0.16 245 / 0.3);
+  --glow-success: 0 0 25px oklch(0.65 0.19 145 / 0.4);
+
+  /* Extended shadows - dark */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
 }
 
 /* ============================================================================
@@ -186,6 +245,10 @@
   /* Font stacks - system fonts for Claude theme */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace;
+
+  /* Glow shadows - warm orange */
+  --glow-primary: 0 0 20px oklch(0.62 0.14 39 / 0.3);
+  --glow-primary-sm: 0 0 10px oklch(0.62 0.14 39 / 0.2);
 }
 
 .theme-claude.dark {
@@ -239,6 +302,10 @@
   --color-status-pending: oklch(0.3500 0.0300 80);
   --color-status-progress: oklch(0.4000 0.0500 60);
   --color-status-done: oklch(0.4000 0.0500 140);
+
+  /* Glow shadows - warm orange dark */
+  --glow-primary: 0 0 25px oklch(0.68 0.15 39 / 0.4);
+  --glow-primary-sm: 0 0 12px oklch(0.68 0.15 39 / 0.3);
 }
 
 /* ============================================================================
@@ -302,6 +369,10 @@
   /* Font stacks - DM Sans for Neo Brutalism */
   --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
+
+  /* Glow shadows - bold red-orange */
+  --glow-primary: 0 0 20px oklch(0.65 0.24 27 / 0.35);
+  --glow-primary-sm: 0 0 10px oklch(0.65 0.24 27 / 0.25);
 }
 
 .theme-neo-brutalism.dark {
@@ -355,6 +426,10 @@
   --color-status-pending: oklch(0.4500 0.1200 100);
   --color-status-progress: oklch(0.4500 0.1500 200);
   --color-status-done: oklch(0.4500 0.1500 130);
+
+  /* Glow shadows - bold red-orange dark */
+  --glow-primary: 0 0 25px oklch(0.72 0.25 27 / 0.4);
+  --glow-primary-sm: 0 0 12px oklch(0.72 0.25 27 / 0.3);
 }
 
 /* ============================================================================
@@ -418,6 +493,10 @@
   /* Font stacks - Outfit for Retro Arcade */
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
+
+  /* Glow shadows - vibrant pink */
+  --glow-primary: 0 0 20px oklch(0.59 0.20 356 / 0.35);
+  --glow-primary-sm: 0 0 10px oklch(0.59 0.20 356 / 0.25);
 }
 
 .theme-retro-arcade.dark {
@@ -471,6 +550,10 @@
   --color-status-pending: oklch(0.3092 0.0518 219.6516);
   --color-status-progress: oklch(0.5230 0.0800 187);
   --color-status-done: oklch(0.5000 0.1500 355);
+
+  /* Glow shadows - vibrant pink dark */
+  --glow-primary: 0 0 25px oklch(0.59 0.20 356 / 0.4);
+  --glow-primary-sm: 0 0 12px oklch(0.59 0.20 356 / 0.3);
 }
 
 /* ============================================================================
@@ -535,6 +618,10 @@
   /* Font stacks - Inter for Aurora's clean, readable feel */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Glow shadows - deep violet */
+  --glow-primary: 0 0 20px oklch(0.55 0.22 285 / 0.3);
+  --glow-primary-sm: 0 0 10px oklch(0.55 0.22 285 / 0.2);
 }
 
 .theme-aurora.dark {
@@ -588,6 +675,10 @@
   --color-status-pending: oklch(0.2500 0.0280 285);
   --color-status-progress: oklch(0.4000 0.1000 175);
   --color-status-done: oklch(0.4500 0.1500 285);
+
+  /* Glow shadows - luminous violet dark */
+  --glow-primary: 0 0 25px oklch(0.65 0.24 285 / 0.4);
+  --glow-primary-sm: 0 0 12px oklch(0.65 0.24 285 / 0.3);
 }
 
 /* ============================================================================
@@ -661,6 +752,10 @@
   /* Font stacks - system fonts for professional feel */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Consolas, 'Liberation Mono', monospace;
+
+  /* Glow shadows - subtle navy */
+  --glow-primary: 0 0 20px oklch(0.40 0.09 265 / 0.25);
+  --glow-primary-sm: 0 0 10px oklch(0.40 0.09 265 / 0.15);
 }
 
 .theme-business.dark {
@@ -721,6 +816,10 @@
   --color-status-pending: oklch(0.2500 0.0200 265);
   --color-status-progress: oklch(0.3500 0.0400 265);
   --color-status-done: oklch(0.4500 0.0600 265);
+
+  /* Glow shadows - navy dark */
+  --glow-primary: 0 0 25px oklch(0.55 0.12 265 / 0.35);
+  --glow-primary-sm: 0 0 12px oklch(0.55 0.12 265 / 0.25);
 }
 
 /* ============================================================================
@@ -769,10 +868,26 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow: var(--shadow);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+  --color-success: var(--color-success);
+  --color-success-foreground: var(--color-success-foreground);
+  --color-warning: var(--color-warning);
+  --color-warning-foreground: var(--color-warning-foreground);
+  --color-info: var(--color-info);
+  --color-info-foreground: var(--color-info-foreground);
+  --color-category-1: var(--color-category-1);
+  --color-category-2: var(--color-category-2);
+  --color-category-3: var(--color-category-3);
+  --color-category-4: var(--color-category-4);
+  --color-category-5: var(--color-category-5);
+  --color-category-6: var(--color-category-6);
+  --color-category-7: var(--color-category-7);
 }
 
 /* ============================================================================
@@ -1009,6 +1124,50 @@
   }
 }
 
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleBlurIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: var(--glow-primary-sm);
+  }
+  50% {
+    box-shadow: var(--glow-primary);
+  }
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ============================================================================
    Utility Classes
    ============================================================================ */
@@ -1131,6 +1290,55 @@
 
   .shadow-neo-lg {
     box-shadow: var(--shadow-lg);
+  }
+
+  /* New animation utilities */
+  .animate-slide-up-fade {
+    animation: slideUpFade 0.3s var(--ease-out-expo);
+  }
+
+  .animate-scale-blur-in {
+    animation: scaleBlurIn 0.25s var(--ease-out-expo);
+  }
+
+  .animate-glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  .animate-stagger-fade-in {
+    animation: staggerFadeIn 0.3s var(--ease-out-expo) both;
+  }
+
+  /* Glow shadow utilities */
+  .shadow-glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .shadow-glow-primary-sm {
+    box-shadow: var(--glow-primary-sm);
+  }
+
+  .shadow-glow-success {
+    box-shadow: var(--glow-success);
+  }
+
+  /* Alert/status utilities */
+  .alert-success {
+    background: oklch(from var(--color-success) l c h / 0.1);
+    border-color: oklch(from var(--color-success) l c h / 0.3);
+    color: var(--color-success);
+  }
+
+  .alert-warning {
+    background: oklch(from var(--color-warning) l c h / 0.1);
+    border-color: oklch(from var(--color-warning) l c h / 0.3);
+    color: var(--color-warning);
+  }
+
+  .alert-info {
+    background: oklch(from var(--color-info) l c h / 0.1);
+    border-color: oklch(from var(--color-info) l c h / 0.3);
+    color: var(--color-info);
   }
 }
 

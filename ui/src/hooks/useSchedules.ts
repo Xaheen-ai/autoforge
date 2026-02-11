@@ -103,10 +103,12 @@ export function useToggleSchedule(projectName: string) {
  * Polls every 30 seconds to keep status up-to-date.
  */
 export function useNextScheduledRun(projectName: string | null) {
+  // Disabled: endpoint not implemented yet
+  // TODO: Implement /api/projects/{name}/schedules/next endpoint
   return useQuery({
-    queryKey: ['nextRun', projectName],
-    queryFn: () => api.getNextScheduledRun(projectName!),
-    enabled: !!projectName,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    queryKey: ['next-scheduled-run', projectName],
+    queryFn: () => Promise.resolve({ next_run: null, schedule: null }),
+    enabled: false, // Disabled until backend endpoint is implemented
+    refetchInterval: 60000, // Refresh every minute
   })
 }

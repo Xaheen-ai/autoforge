@@ -678,3 +678,98 @@ class GitActionResponse(BaseModel):
     """Response for git actions."""
     success: bool
     message: str = ""
+
+
+# ============================================================================
+# Context Management Schemas
+# ============================================================================
+
+class ProjectContextNotes(BaseModel):
+    """Request schema for updating project notes."""
+    notes: str
+
+
+class ProjectContextConfig(BaseModel):
+    """Request schema for updating project context configuration."""
+    include_codebase_structure: bool | None = None
+    include_dependencies: bool | None = None
+    include_recent_changes: bool | None = None
+    max_context_size: int | None = None
+
+
+# ============================================================================
+# Ideation Schemas
+# ============================================================================
+
+class IdeaBase(BaseModel):
+    """Base idea attributes."""
+    title: str
+    description: str
+    category: str  # 'feature', 'refactor', 'optimization', 'bug-fix'
+    priority: str  # 'low', 'medium', 'high'
+    effort: str  # 'small', 'medium', 'large'
+
+
+class Idea(IdeaBase):
+    """Full idea with metadata."""
+    id: str
+    created_at: str
+    saved: bool = False
+    saved_at: str | None = None
+    updated_at: str | None = None
+
+
+class IdeaSave(BaseModel):
+    """Request schema for saving an idea."""
+    idea: Idea
+
+
+# ============================================================================
+# Roadmap Schemas
+# ============================================================================
+
+class RoadmapFeature(BaseModel):
+    """Roadmap feature."""
+    id: str
+    title: str
+    description: str
+    priority: int
+    effort: str  # 'small', 'medium', 'large'
+    status: str = 'planned'  # 'planned', 'in-progress', 'completed'
+    dependencies: List[str] = []
+    milestone: str
+    estimated_days: int
+    created_at: str | None = None
+    updated_at: str | None = None
+    status_updated_at: str | None = None
+
+
+class RoadmapMilestone(BaseModel):
+    """Roadmap milestone."""
+    name: str
+    target_date: str
+    features: int
+
+
+class Roadmap(BaseModel):
+    """Full roadmap."""
+    features: List[RoadmapFeature]
+    milestones: List[RoadmapMilestone]
+    generated_at: str | None = None
+    updated_at: str | None = None
+    total_estimated_days: int = 0
+
+
+class FeatureStatusUpdate(BaseModel):
+    """Request schema for updating feature status."""
+    status: str  # 'planned', 'in-progress', 'completed'
+
+
+class FeatureUpdate(BaseModel):
+    """Request schema for updating feature details."""
+    title: str | None = None
+    description: str | None = None
+    priority: int | None = None
+    effort: str | None = None
+    milestone: str | None = None
+    estimated_days: int | None = None

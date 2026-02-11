@@ -23,6 +23,11 @@ from ..schemas import (
     ProjectSettingsUpdate,
     ProjectStats,
     ProjectSummary,
+    ProjectContextNotes,
+    ProjectContextConfig,
+    IdeaSave,
+    FeatureStatusUpdate,
+    FeatureUpdate,
 )
 
 # Lazy imports to avoid circular dependencies
@@ -686,3 +691,445 @@ async def initialize_convex(name: str):
             status_code=500,
             detail=f"Unexpected error during Convex initialization: {e}"
         )
+
+# ============================================================================
+# Context Management Endpoints
+# ============================================================================
+
+@router.get("/{name}/context")
+async def get_project_context(name: str):
+    """Get all project context data (notes, analysis, config)."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.context_manager import ContextManager
+    context_mgr = ContextManager(project_dir)
+    
+    return context_mgr.get_all_context()
+
+
+@router.put("/{name}/context/notes")
+async def update_project_notes(name: str, body: ProjectContextNotes):
+    """Update project notes."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.context_manager import ContextManager
+    context_mgr = ContextManager(project_dir)
+    context_mgr.save_notes(body.notes)
+    
+    return {"success": True, "message": "Notes updated"}
+
+
+@router.post("/{name}/context/analyze")
+async def analyze_project_codebase(name: str):
+    """Run codebase analysis and generate AI summary."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    try:
+        from ..services.context_manager import ContextManager
+        from ..services.ai_assistant import AIAssistant
+        
+        print("🔍 Starting codebase analysis...")
+        
+        # Run codebase analysis
+        context_mgr = ContextManager(project_dir)
+        analysis = context_mgr.analyze_codebase()
+        
+        print(f"✅ Analysis complete: {analysis.get('total_files', 0)} files, {len(analysis.get('languages', {}))} languages")
+        
+        # Generate AI insights
+        print("🤖 Generating AI insights...")
+        ai = AIAssistant(use_mock=False)
+        insights = ai.analyze_codebase(analysis)
+        
+        print(f"✅ AI insights generated")
+        
+        # Combine analysis and insights
+        result = {
+            **analysis,
+            'insights': insights
+        }
+        
+        return {"success": True, "analysis": result}
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ Error analyzing codebase: {str(e)}")
+        print(error_details)
+        raise HTTPException(status_code=500, detail=f"Error analyzing codebase: {str(e)}")
+
+
+@router.put("/{name}/context/config")
+async def update_context_config(name: str, body: ProjectContextConfig):
+    """Update context configuration."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.context_manager import ContextManager
+    context_mgr = ContextManager(project_dir)
+    
+    # Only update fields that were provided
+    config_updates = body.model_dump(exclude_none=True)
+    context_mgr.update_config(config_updates)
+    
+    return {"success": True, "message": "Configuration updated"}
+
+# ============================================================================
+# Ideation Endpoints
+# ============================================================================
+
+@router.post("/{name}/ideation/generate")
+async def generate_ideas(name: str):
+    """
+    Generate AI-powered improvement ideas for the project.
+    Uses comprehensive context including README, dependencies, and git history.
+    """
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    try:
+        from ..services.context_manager import ContextManager
+        from ..services.ai_assistant import AIAssistant
+        from ..services.ideation import IdeationManager
+        
+        # Get comprehensive context for better AI generation
+        context_mgr = ContextManager(project_dir)
+        context = context_mgr.get_comprehensive_context()
+        
+        # Generate ideas using AI (REAL AI, not mock!)
+        ai = AIAssistant(use_mock=False)
+        ideas = ai.generate_ideas(context)
+        
+        print(f"🔍 Generated {len(ideas)} ideas, now saving...")
+        
+        # Save generated ideas to file
+        ideation_mgr = IdeationManager(project_dir)
+        saved_count = 0
+        for i, idea in enumerate(ideas):
+            success = ideation_mgr.save_idea(idea)
+            if success:
+                saved_count += 1
+            else:
+                print(f"⚠️  Failed to save idea {i+1}: {idea.get('title', 'Unknown')}")
+        
+        print(f"✅ Generated {len(ideas)} ideas, saved {saved_count} to {ideation_mgr.ideas_file}")
+        
+        return {"success": True, "ideas": ideas}
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ Error generating ideas: {str(e)}")
+        print(error_details)
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to generate ideas: {str(e)}"
+        )
+
+
+@router.get("/{name}/ideation/ideas")
+async def get_saved_ideas(name: str):
+    """Get all saved ideas."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.ideation import IdeationManager
+    
+    ideation_mgr = IdeationManager(project_dir)
+    ideas = ideation_mgr.get_saved_ideas()
+    
+    return {"ideas": ideas}
+
+
+@router.post("/{name}/ideation/ideas")
+async def save_idea(name: str, body: IdeaSave):
+    """Save an idea."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.ideation import IdeationManager
+    
+    ideation_mgr = IdeationManager(project_dir)
+    success = ideation_mgr.save_idea(body.idea.model_dump())
+    
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to save idea")
+    
+    return {"success": True, "message": "Idea saved"}
+
+
+@router.delete("/{name}/ideation/ideas/{idea_id}")
+async def delete_idea(name: str, idea_id: str):
+    """Delete a saved idea."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.ideation import IdeationManager
+    
+    ideation_mgr = IdeationManager(project_dir)
+    success = ideation_mgr.delete_idea(idea_id)
+    
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to delete idea")
+    
+    return {"success": True, "message": "Idea deleted"}
+
+
+@router.get("/{name}/ideation/stats")
+async def get_idea_stats(name: str):
+    """Get idea statistics."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.ideation import IdeationManager
+    
+    ideation_mgr = IdeationManager(project_dir)
+    stats = ideation_mgr.get_idea_stats()
+    
+    return stats
+
+
+# ============================================================================
+# Roadmap Endpoints
+# ============================================================================
+
+@router.post("/{name}/roadmap/generate")
+async def generate_roadmap(name: str):
+    """
+    Generate AI-powered roadmap for the project.
+    Uses comprehensive context including README, dependencies, and git history.
+    """
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    try:
+        from ..services.context_manager import ContextManager
+        from ..services.ai_assistant import AIAssistant
+        from ..services.roadmap import RoadmapManager
+        
+        # Get comprehensive context for better AI generation
+        context_mgr = ContextManager(project_dir)
+        context = context_mgr.get_comprehensive_context()
+        
+        # Add timeframe (default to 6 months)
+        context['timeframe'] = '6_months'
+        
+        # Generate roadmap using AI (REAL AI, not mock!)
+        ai = AIAssistant(use_mock=False)
+        roadmap = ai.generate_roadmap(context)
+        
+        # Save roadmap
+        roadmap_mgr = RoadmapManager(project_dir)
+        roadmap_mgr.save_roadmap(roadmap)
+        
+        return {"success": True, "roadmap": roadmap}
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"❌ Error generating roadmap: {str(e)}")
+        print(error_details)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate roadmap: {str(e)}"
+        )
+
+
+@router.get("/{name}/roadmap")
+async def get_roadmap(name: str):
+    """Get current roadmap."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.roadmap import RoadmapManager
+    
+    roadmap_mgr = RoadmapManager(project_dir)
+    roadmap = roadmap_mgr.get_roadmap()
+    
+    return roadmap
+
+
+@router.put("/{name}/roadmap/features/{feature_id}/status")
+async def update_feature_status(name: str, feature_id: str, body: FeatureStatusUpdate):
+    """Update feature status."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.roadmap import RoadmapManager
+    
+    roadmap_mgr = RoadmapManager(project_dir)
+    success = roadmap_mgr.update_feature_status(feature_id, body.status)
+    
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to update feature status")
+    
+    return {"success": True, "message": "Feature status updated"}
+
+
+@router.put("/{name}/roadmap/features/{feature_id}")
+async def update_feature(name: str, feature_id: str, body: FeatureUpdate):
+    """Update feature details."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.roadmap import RoadmapManager
+    
+    roadmap_mgr = RoadmapManager(project_dir)
+    updates = body.model_dump(exclude_none=True)
+    success = roadmap_mgr.update_feature(feature_id, updates)
+    
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to update feature")
+    
+    return {"success": True, "message": "Feature updated"}
+
+
+@router.get("/{name}/roadmap/export")
+async def export_roadmap(name: str, format: str = 'markdown'):
+    """Export roadmap in specified format."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.roadmap import RoadmapManager
+    
+    roadmap_mgr = RoadmapManager(project_dir)
+    
+    try:
+        exported = roadmap_mgr.export_roadmap(format)
+        return {"success": True, "format": format, "content": exported}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/{name}/roadmap/stats")
+async def get_roadmap_stats(name: str):
+    """Get roadmap statistics."""
+    (_, _, get_project_path, _, _, _, _, _) = _get_registry_functions()
+    
+    name = validate_project_name(name)
+    project_dir = get_project_path(name)
+    
+    if not project_dir:
+        raise HTTPException(status_code=404, detail=f"Project '{name}' not found")
+    
+    if not project_dir.exists():
+        raise HTTPException(status_code=404, detail="Project directory not found")
+    
+    from ..services.roadmap import RoadmapManager
+    
+    roadmap_mgr = RoadmapManager(project_dir)
+    stats = roadmap_mgr.get_roadmap_stats()
+    
+    return stats

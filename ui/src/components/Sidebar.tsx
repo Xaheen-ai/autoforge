@@ -1,10 +1,8 @@
-import { BookOpen, Settings, Keyboard, Moon, Sun } from 'lucide-react'
+import { BookOpen, Settings, Keyboard, Lightbulb, Map, FileText, Database, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProjectSelector } from './ProjectSelector'
-import { ThemeSelector } from './ThemeSelector'
 import { Separator } from '@/components/ui/separator'
 import type { ProjectSummary } from '../lib/types'
-import type { ThemeId, ThemeOption } from '../hooks/useTheme'
 
 interface SidebarProps {
     projects: ProjectSummary[]
@@ -14,11 +12,12 @@ interface SidebarProps {
     onSpecCreatingChange: (isCreating: boolean) => void
     onOpenSettings: () => void
     onOpenShortcuts: () => void
-    theme: ThemeId
-    onThemeChange: (theme: ThemeId) => void
-    themes: ThemeOption[]
-    darkMode: boolean
-    toggleDarkMode: () => void
+    onOpenIdeation: () => void
+    onOpenRoadmap: () => void
+    onOpenProjectContext: () => void
+    onOpenKnowledge: () => void
+    onOpenConvexInit: () => void
+    onOpenPromptsEditor: () => void
 }
 
 export function Sidebar({
@@ -29,11 +28,12 @@ export function Sidebar({
     onSpecCreatingChange,
     onOpenSettings,
     onOpenShortcuts,
-    theme,
-    onThemeChange,
-    themes,
-    darkMode,
-    toggleDarkMode
+    onOpenIdeation,
+    onOpenRoadmap,
+    onOpenProjectContext,
+    onOpenKnowledge,
+    onOpenConvexInit,
+    onOpenPromptsEditor
 }: SidebarProps) {
     return (
         <aside className="w-64 bg-card border-r border-border flex flex-col h-full shrink-0 relative z-30">
@@ -45,7 +45,7 @@ export function Sidebar({
                 </h1>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+            <div className="flex-1 overflow-y-auto py-4 px-3 space-y-4">
                 {/* Project Selector Section */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-bold text-muted-foreground uppercase px-2 tracking-wider">
@@ -61,67 +61,124 @@ export function Sidebar({
                     />
                 </div>
 
-                <Separator />
+                {/* Project-Specific Actions - Only show when project is selected */}
+                {selectedProject && (
+                    <>
+                        <Separator />
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase px-2 tracking-wider mb-2 block">
+                                Project Actions
+                            </label>
 
-                {/* Navigation Section */}
-                <div className="space-y-1">
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenIdeation}
+                            >
+                                <Lightbulb size={18} />
+                                Ideation
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenRoadmap}
+                            >
+                                <Map size={18} />
+                                Roadmap
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenKnowledge}
+                            >
+                                <BookOpen size={18} />
+                                Knowledge Base
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenPromptsEditor}
+                            >
+                                <Sparkles size={18} />
+                                Prompts
+                            </Button>
+
+                            <Separator className="my-2" />
+
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenProjectContext}
+                            >
+                                <FileText size={18} />
+                                Project Context
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenConvexInit}
+                            >
+                                <Database size={18} />
+                                Initialize Convex
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+                                onClick={onOpenPromptsEditor}
+                            >
+                                <FileText size={18} />
+                                Edit Prompts
+                            </Button>
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* Footer - Global Settings */}
+            <div className="border-t border-border mt-auto">
+                <Separator className="mb-0" />
+
+                {/* Global Navigation */}
+                <div className="p-3 space-y-1">
                     <label className="text-[10px] font-bold text-muted-foreground uppercase px-2 tracking-wider mb-2 block">
-                        Navigation
+                        Settings
                     </label>
 
                     <Button
                         variant="ghost"
+                        size="sm"
                         className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
                         onClick={() => window.open('https://xaheen.ai', '_blank')}
                     >
-                        <BookOpen size={18} />
+                        <BookOpen size={16} />
                         Documentation
                     </Button>
 
                     <Button
                         variant="ghost"
+                        size="sm"
                         className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
                         onClick={onOpenSettings}
                     >
-                        <Settings size={18} />
+                        <Settings size={16} />
                         Settings
                     </Button>
 
                     <Button
                         variant="ghost"
+                        size="sm"
                         className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
                         onClick={onOpenShortcuts}
                     >
-                        <Keyboard size={18} />
+                        <Keyboard size={16} />
                         Shortcuts
                     </Button>
                 </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-3 border-t border-border mt-auto space-y-2">
-                {/* Theme Selector (Color) */}
-                <div className="flex items-center justify-between px-2">
-                    <span className="text-xs font-medium text-muted-foreground">Theme</span>
-                    <ThemeSelector
-                        themes={themes}
-                        currentTheme={theme}
-                        onThemeChange={onThemeChange}
-                        side="top"
-                    />
-                </div>
-
-                {/* Dark Mode Toggle */}
-                <Button
-                    variant="outline"
-                    className="w-full justify-between"
-                    onClick={toggleDarkMode}
-                >
-                    <span className="flex items-center gap-2">
-                        {darkMode ? <Moon size={16} /> : <Sun size={16} />}
-                        <span className="text-sm">{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
-                    </span>
-                </Button>
             </div>
         </aside>
     )

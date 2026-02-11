@@ -1,0 +1,215 @@
+import { Loader2, CheckCircle2, Sparkles, Brain, FileSearch } from 'lucide-react'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
+
+interface ProgressStage {
+    id: string
+    label: string
+    icon: React.ComponentType<{ size?: number; className?: string }>
+    message: string
+}
+
+interface AIProgressModalProps {
+    isOpen: boolean
+    operation: 'ideation' | 'roadmap' | 'analysis'
+    currentStage: number
+    progress: number
+    aiThought?: string
+    onClose?: () => void
+}
+
+const OPERATION_STAGES: Record<string, ProgressStage[]> = {
+    ideation: [
+        {
+            id: 'analyzing',
+            label: 'Analyzing Project',
+            icon: FileSearch,
+            message: 'Reading project structure and dependencies...'
+        },
+        {
+            id: 'context',
+            label: 'Understanding Context',
+            icon: Brain,
+            message: 'Processing README and git history...'
+        },
+        {
+            id: 'generating',
+            label: 'Generating Ideas',
+            icon: Sparkles,
+            message: 'AI is brainstorming improvement ideas...'
+        },
+        {
+            id: 'complete',
+            label: 'Complete',
+            icon: CheckCircle2,
+            message: 'Ideas generated successfully!'
+        }
+    ],
+    roadmap: [
+        {
+            id: 'analyzing',
+            label: 'Analyzing Project',
+            icon: FileSearch,
+            message: 'Scanning codebase and dependencies...'
+        },
+        {
+            id: 'planning',
+            label: 'Planning Milestones',
+            icon: Brain,
+            message: 'Organizing features into quarters...'
+        },
+        {
+            id: 'generating',
+            label: 'Generating Roadmap',
+            icon: Sparkles,
+            message: 'AI is creating strategic roadmap...'
+        },
+        {
+            id: 'complete',
+            label: 'Complete',
+            icon: CheckCircle2,
+            message: 'Roadmap generated successfully!'
+        }
+    ],
+    analysis: [
+        {
+            id: 'scanning',
+            label: 'Scanning Codebase',
+            icon: FileSearch,
+            message: 'Analyzing file structure...'
+        },
+        {
+            id: 'metrics',
+            label: 'Counting Metrics',
+            icon: Brain,
+            message: 'Calculating lines of code and languages...'
+        },
+        {
+            id: 'insights',
+            label: 'Generating Insights',
+            icon: Sparkles,
+            message: 'AI is analyzing your architecture...'
+        },
+        {
+            id: 'complete',
+            label: 'Complete',
+            icon: CheckCircle2,
+            message: 'Analysis complete with AI insights!'
+        }
+    ]
+}
+
+export function AIProgressModal({
+    isOpen,
+    operation,
+    currentStage,
+    progress,
+    aiThought,
+    onClose
+}: AIProgressModalProps) {
+    const stages = OPERATION_STAGES[operation]
+    const currentStageData = stages[currentStage]
+
+    console.log('🟢 AIProgressModal render:', { isOpen, operation, currentStage, progress })
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <Sparkles className="text-purple-500 animate-pulse" size={24} />
+                        AI Generation in Progress
+                    </DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-6 py-4">
+                    {/* Progress Bar */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Progress</span>
+                            <span className="font-medium">{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div
+                                className="bg-purple-600 h-full transition-all duration-300 ease-out"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Stage Indicators */}
+                    <div className="space-y-3">
+                        {stages.map((stage, index) => {
+                            const StageIcon = stage.icon
+                            const isComplete = index < currentStage
+                            const isCurrent = index === currentStage
+
+                            return (
+                                <div
+                                    key={stage.id}
+                                    className={`flex items-center gap-3 p-3 rounded-lg transition-all ${isCurrent
+                                        ? 'bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800'
+                                        : isComplete
+                                            ? 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
+                                            : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 opacity-50'
+                                        }`}
+                                >
+                                    <div className="flex-shrink-0">
+                                        {isComplete ? (
+                                            <CheckCircle2 className="text-green-600 dark:text-green-400" size={20} />
+                                        ) : isCurrent ? (
+                                            <Loader2 className="text-purple-600 dark:text-purple-400 animate-spin" size={20} />
+                                        ) : (
+                                            <StageIcon className="text-gray-400" size={20} />
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-medium text-sm">{stage.label}</div>
+                                        {isCurrent && (
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                                {stage.message}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {/* AI Thought Bubble */}
+                    {aiThought && currentStage < stages.length - 1 && (
+                        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-start gap-3">
+                                <Brain className="text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1" size={20} />
+                                <div>
+                                    <div className="text-xs font-semibold text-purple-900 dark:text-purple-100 mb-1">
+                                        AI is thinking...
+                                    </div>
+                                    <div className="text-sm text-purple-800 dark:text-purple-200 italic">
+                                        "{aiThought}"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Success State */}
+                    {currentStage === stages.length - 1 && (
+                        <div className="text-center py-4">
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 mb-3">
+                                <CheckCircle2 className="text-green-600 dark:text-green-400" size={32} />
+                            </div>
+                            <div className="text-lg font-semibold text-green-900 dark:text-green-100">
+                                {currentStageData.message}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}

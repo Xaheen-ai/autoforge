@@ -129,6 +129,83 @@ export async function resetProject(
   })
 }
 
+export interface ConvexInitResponse {
+  success: boolean
+  message: string
+  convex_url?: string
+  convex_deployment?: string
+  project_id?: string
+}
+
+export async function initializeConvex(projectName: string): Promise<ConvexInitResponse> {
+  return fetchJSON(`/projects/${encodeURIComponent(projectName)}/initialize-convex`, {
+    method: 'POST',
+  })
+}
+
+// ============================================================================
+// Context Management API
+// ============================================================================
+
+export interface CodebaseAnalysis {
+  analyzed_at: string
+  total_files: number
+  total_lines: number
+  languages: Record<string, number>
+  structure: {
+    directories: string[]
+    key_files: Array<{
+      path: string
+      lines: number
+      language: string
+      description: string
+    }>
+  }
+}
+
+export interface ContextConfig {
+  include_codebase_structure: boolean
+  include_dependencies: boolean
+  include_recent_changes: boolean
+  max_context_size: number
+}
+
+export interface ProjectContext {
+  notes: string
+  codebase_analysis: CodebaseAnalysis | null
+  config: ContextConfig
+}
+
+export async function getProjectContext(projectName: string): Promise<ProjectContext> {
+  return fetchJSON(`/projects/${encodeURIComponent(projectName)}/context`)
+}
+
+export async function updateProjectNotes(projectName: string, notes: string): Promise<{ success: boolean; message: string }> {
+  return fetchJSON(`/projects/${encodeURIComponent(projectName)}/context/notes`, {
+    method: 'PUT',
+    body: JSON.stringify(notes),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export async function analyzeCodebase(projectName: string): Promise<{ success: boolean; analysis: CodebaseAnalysis }> {
+  return fetchJSON(`/projects/${encodeURIComponent(projectName)}/context/analyze`, {
+    method: 'POST',
+  })
+}
+
+export async function updateContextConfig(
+  projectName: string,
+  config: Partial<ContextConfig>
+): Promise<{ success: boolean; message: string }> {
+  return fetchJSON(`/projects/${encodeURIComponent(projectName)}/context/config`, {
+    method: 'PUT',
+    body: JSON.stringify(config),
+  })
+}
+
 // ============================================================================
 // Features API
 // ============================================================================
@@ -541,3 +618,220 @@ export async function deleteSchedule(
 export async function getNextScheduledRun(projectName: string): Promise<NextRunResponse> {
   return fetchJSON(`/projects/${encodeURIComponent(projectName)}/schedules/next`)
 }
+
+// ============================================================================
+// Ideation API
+// ============================================================================
+
+export interface Idea {
+  id: string
+  title: string
+  description: string
+  category: 'feature' | 'refactor' | 'optimization' | 'bug-fix'
+  priority: 'low' | 'medium' | 'high'
+  effort: 'small' | 'medium' | 'large'
+  created_at: string
+  saved: boolean
+  saved_at?: string
+  updated_at?: string
+}
+
+export interface IdeaStats {
+  total: number
+  by_category: Record<string, number>
+  by_priority: Record<string, number>
+  by_effort: Record<string, number>
+}
+
+export async function generateIdeas(projectName: string): Promise<Idea[]> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/ideation/generate`, {
+    method: 'POST'
+  })
+  if (!response.ok) throw new Error('Failed to generate ideas')
+  const data = await response.json()
+  return data.ideas
+}
+
+export async function getSavedIdeas(projectName: string): Promise<Idea[]> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/ideation/ideas`)
+  if (!response.ok) throw new Error('Failed to get saved ideas')
+  const data = await response.json()
+  return data.ideas
+}
+
+export async function saveIdea(projectName: string, idea: Idea): Promise<void> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/ideation/ideas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idea })
+  })
+  if (!response.ok) throw new Error('Failed to save idea')
+}
+
+export async function deleteIdea(projectName: string, ideaId: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/ideation/ideas/${ideaId}`, {
+    method: 'DELETE'
+  })
+  if (!response.ok) throw new Error('Failed to delete idea')
+}
+
+export async function getIdeaStats(projectName: string): Promise<IdeaStats> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/ideation/stats`)
+  if (!response.ok) throw new Error('Failed to get idea stats')
+  return response.json()
+}
+
+// ============================================================================
+// Roadmap API
+// ============================================================================
+
+export interface RoadmapFeature {
+  id: string
+  title: string
+  description: string
+  priority: number
+  effort: 'small' | 'medium' | 'large'
+  status: 'planned' | 'in-progress' | 'completed'
+  dependencies: string[]
+  milestone: string
+  estimated_days: number
+  created_at?: string
+  updated_at?: string
+  status_updated_at?: string
+}
+
+export interface RoadmapMilestone {
+  name: string
+  target_date: string
+  features: number
+}
+
+export interface Roadmap {
+  features: RoadmapFeature[]
+  milestones: RoadmapMilestone[]
+  generated_at?: string
+  updated_at?: string
+  total_estimated_days: number
+}
+
+export interface RoadmapStats {
+  total_features: number
+  by_status: Record<string, number>
+  by_effort: Record<string, number>
+  total_estimated_days: number
+  milestones: number
+}
+
+export async function generateRoadmap(projectName: string, timeframe: string = '6 months'): Promise<Roadmap> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/roadmap/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ timeframe })
+  })
+  if (!response.ok) throw new Error('Failed to generate roadmap')
+  const data = await response.json()
+  return data.roadmap
+}
+
+export async function getRoadmap(projectName: string): Promise<Roadmap> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/roadmap`)
+  if (!response.ok) throw new Error('Failed to get roadmap')
+  const data = await response.json()
+
+  // Transform backend structure to frontend structure
+  // Backend: { milestones: [{ quarter, features: [...] }] }
+  // Frontend: { features: [...], milestones: [...] }
+
+  if (!data || !data.milestones) {
+    return {
+      features: [],
+      milestones: [],
+      total_estimated_days: 0
+    }
+  }
+
+  // Flatten features from all milestones
+  const features: RoadmapFeature[] = []
+  const milestones: RoadmapMilestone[] = []
+
+  data.milestones.forEach((milestone: any) => {
+    // Add milestone info
+    milestones.push({
+      name: milestone.quarter,
+      target_date: milestone.quarter,
+      features: milestone.features?.length || 0
+    })
+
+    // Add features with milestone reference
+    if (milestone.features) {
+      milestone.features.forEach((feature: any) => {
+        features.push({
+          ...feature,
+          milestone: milestone.quarter,
+          priority: feature.priority === 'high' ? 3 : feature.priority === 'medium' ? 2 : 1,
+          estimated_days: feature.effort === 'large' ? 10 : feature.effort === 'medium' ? 5 : 2
+        })
+      })
+    }
+  })
+
+  return {
+    features,
+    milestones,
+    generated_at: data.updated_at,
+    updated_at: data.updated_at,
+    total_estimated_days: features.reduce((sum, f) => sum + (f.estimated_days || 0), 0)
+  }
+}
+
+export async function updateFeatureStatus(
+  projectName: string,
+  featureId: string,
+  status: string
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE}/projects/${projectName}/roadmap/features/${featureId}/status`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    }
+  )
+  if (!response.ok) throw new Error('Failed to update feature status')
+}
+
+
+export async function updateRoadmapFeature(
+  projectName: string,
+  featureId: string,
+  updates: Partial<RoadmapFeature>
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE}/projects/${projectName}/roadmap/features/${featureId}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    }
+  )
+  if (!response.ok) throw new Error('Failed to update feature')
+}
+
+export async function exportRoadmap(
+  projectName: string,
+  format: 'markdown' | 'json' | 'csv' = 'markdown'
+): Promise<string> {
+  const response = await fetch(
+    `${API_BASE}/projects/${projectName}/roadmap/export?format=${format}`
+  )
+  if (!response.ok) throw new Error('Failed to export roadmap')
+  const data = await response.json()
+  return data.content
+}
+
+export async function getRoadmapStats(projectName: string): Promise<RoadmapStats> {
+  const response = await fetch(`${API_BASE}/projects/${projectName}/roadmap/stats`)
+  if (!response.ok) throw new Error('Failed to get roadmap stats')
+  return response.json()
+}
+// Force rebuild

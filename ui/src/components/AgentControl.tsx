@@ -6,8 +6,8 @@ import {
   useSettings,
   useUpdateProjectSettings,
 } from '../hooks/useProjects'
-import { useNextScheduledRun } from '../hooks/useSchedules'
-import { formatNextRun, formatEndTime } from '../lib/timeUtils'
+// import { useNextScheduledRun } from '../hooks/useSchedules'
+// import { formatNextRun, formatEndTime } from '../lib/timeUtils'
 import { ScheduleModal } from './ScheduleModal'
 import type { AgentStatus } from '../lib/types'
 import { Button } from '@/components/ui/button'
@@ -60,7 +60,7 @@ export function AgentControl({ projectName, status, defaultConcurrency = 3 }: Ag
 
   const startAgent = useStartAgent(projectName)
   const stopAgent = useStopAgent(projectName)
-  const { data: nextRun } = useNextScheduledRun(projectName)
+  // const { data: nextRun } = useNextScheduledRun(projectName)
 
   const [showScheduleModal, setShowScheduleModal] = useState(false)
 
@@ -111,20 +111,20 @@ export function AgentControl({ projectName, status, defaultConcurrency = 3 }: Ag
           </Badge>
         )}
 
-        {/* Schedule status display */}
-        {nextRun?.is_currently_running && nextRun.next_end && (
+        {/* Schedule status display - Disabled until backend endpoint is implemented */}
+        {/* {nextRun && 'is_currently_running' in nextRun && nextRun.is_currently_running && 'next_end' in nextRun && nextRun.next_end && (
           <Badge variant="default" className="gap-1">
             <Clock size={14} />
             Running until {formatEndTime(nextRun.next_end)}
           </Badge>
         )}
 
-        {!nextRun?.is_currently_running && nextRun?.next_start && (
+        {nextRun && 'is_currently_running' in nextRun && !nextRun.is_currently_running && 'next_start' in nextRun && nextRun.next_start && (
           <Badge variant="secondary" className="gap-1">
             <Clock size={14} />
             Next: {formatNextRun(nextRun.next_start)}
           </Badge>
-        )}
+        )} */}
 
         {/* Start/Stop button */}
         {isLoadingStatus ? (

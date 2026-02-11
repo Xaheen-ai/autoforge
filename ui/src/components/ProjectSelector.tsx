@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { ChevronDown, Plus, FolderOpen, Loader2, Trash2 } from 'lucide-react'
+import { ChevronDown, Plus, FolderOpen, Loader2, Trash2, Database, FileText, Settings } from 'lucide-react'
 import type { ProjectSummary } from '../lib/types'
 import { NewProjectModal } from './NewProjectModal'
 import { ConfirmDialog } from './ConfirmDialog'
 import { useDeleteProject } from '../hooks/useProjects'
+import { initializeConvex } from '../lib/api'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -35,6 +36,8 @@ export function ProjectSelector({
   const [isOpen, setIsOpen] = useState(false)
   const [showNewProjectModal, setShowNewProjectModal] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null)
+  const [initializingConvex, setInitializingConvex] = useState(false)
+  const [convexInitMessage, setConvexInitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   const deleteProject = useDeleteProject()
 
@@ -66,6 +69,29 @@ export function ProjectSelector({
 
   const handleCancelDelete = () => {
     setProjectToDelete(null)
+  }
+
+  const handleInitializeConvex = async () => {
+    if (!selectedProject) return
+
+    setInitializingConvex(true)
+    setConvexInitMessage(null)
+
+    try {
+      const result = await initializeConvex(selectedProject)
+      setConvexInitMessage({
+        type: 'success',
+        text: result.message || 'Convex templates copied! Run npx convex dev in your project directory.'
+      })
+      setTimeout(() => setConvexInitMessage(null), 5000)
+    } catch (error: any) {
+      setConvexInitMessage({
+        type: 'error',
+        text: error.message || 'Failed to initialize Convex'
+      })
+    } finally {
+      setInitializingConvex(false)
+    }
   }
 
   const selectedProjectData = projects.find(p => p.name === selectedProject)
@@ -149,8 +175,62 @@ export function ProjectSelector({
               New Project
             </DropdownMenuItem>
           </div>
+
+          {/* Project Actions - Only show when project is selected */}
+          {selectedProject && (
+            <>
+              <DropdownMenuSeparator className="my-0" />
+              <div className="p-1">
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  Project Actions
+                </div>
+                <DropdownMenuItem
+                  onSelect={handleInitializeConvex}
+                  disabled={initializingConvex}
+                  className="cursor-pointer"
+                >
+                  {initializingConvex ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Database size={16} />
+                  )}
+                  Initialize Convex
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    // TODO: Open prompts editor
+                    console.log('Edit prompts')
+                  }}
+                  className="cursor-pointer"
+                >
+                  <FileText size={16} />
+                  Edit Prompts
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    // TODO: Open project settings
+                    console.log('Project settings')
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Settings size={16} />
+                  Project Settings
+                </DropdownMenuItem>
+              </div>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Convex Init Message */}
+      {convexInitMessage && (
+        <div className={`absolute top-full left-0 right-0 mt-2 p-3 rounded-md text-sm ${convexInitMessage.type === 'success'
+            ? 'bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
+            : 'bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
+          }`}>
+          {convexInitMessage.text}
+        </div>
+      )}
 
       {/* New Project Modal */}
       <NewProjectModal

@@ -7,6 +7,11 @@ import { useCelebration } from './hooks/useCelebration'
 import { useTheme } from './hooks/useTheme'
 import { Sidebar } from './components/Sidebar'
 import { KanbanBoard } from './components/KanbanBoard'
+import { IdeationContent } from './components/IdeationContent'
+import { RoadmapContent } from './components/RoadmapContent'
+import { ProjectContextContent } from './components/ProjectContextContent'
+import { KnowledgeBaseContent } from './components/KnowledgeBaseContent'
+import { PromptsContent } from './components/PromptsContent'
 import { AgentControl } from './components/AgentControl'
 import { ProgressDashboard } from './components/ProgressDashboard'
 import { SetupWizard } from './components/SetupWizard'
@@ -27,8 +32,12 @@ import { DependencyGraph } from './components/DependencyGraph'
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp'
 import { ResetProjectModal } from './components/ResetProjectModal'
 import { ProjectSetupRequired } from './components/ProjectSetupRequired'
+import { ConvexInitModal } from './components/ConvexInitModal'
+import { ProjectContextModal } from './components/ProjectContextModal'
+import { PromptsEditorModal } from './components/PromptsEditorModal'
+import { ThemeSelector } from './components/ThemeSelector'
 import { getDependencyGraph, startAgent } from './lib/api'
-import { Loader2, RotateCcw } from 'lucide-react'
+import { Loader2, RotateCcw, Moon, Sun } from 'lucide-react'
 import type { Feature } from './lib/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -42,8 +51,12 @@ const VIEW_MODE_KEY = 'xaheen-view-mode'
 const COLLAPSED_DEBUG_PANEL_CLEARANCE = 48
 
 type InitializerStatus = 'idle' | 'starting' | 'error'
+type ContentView = 'kanban' | 'ideation' | 'roadmap' | 'context' | 'knowledge' | 'prompts'
 
 function App() {
+  // Content view state (what to show in main area)
+  const [contentView, setContentView] = useState<ContentView>('kanban')
+
   // Initialize selected project from localStorage
   const [selectedProject, setSelectedProject] = useState<string | null>(() => {
     try {
@@ -75,6 +88,11 @@ function App() {
       return 'kanban'
     }
   })
+
+  // Project action modals (only for modals, not pages)
+  const [showProjectContext, setShowProjectContext] = useState(false)
+  const [showConvexInit, setShowConvexInit] = useState(false)
+  const [showPromptsEditor, setShowPromptsEditor] = useState(false)
 
   const queryClient = useQueryClient()
   const { data: projects, isLoading: projectsLoading } = useProjects()
@@ -269,11 +287,12 @@ function App() {
           onSpecCreatingChange={setIsSpecCreating}
           onOpenSettings={() => setShowSettings(true)}
           onOpenShortcuts={() => setShowKeyboardHelp(true)}
-          theme={theme}
-          onThemeChange={setTheme}
-          themes={themes}
-          darkMode={darkMode}
-          toggleDarkMode={toggleDarkMode}
+          onOpenIdeation={() => setContentView('ideation')}
+          onOpenRoadmap={() => setContentView('roadmap')}
+          onOpenProjectContext={() => setContentView('context')}
+          onOpenKnowledge={() => setContentView('knowledge')}
+          onOpenConvexInit={() => setShowConvexInit(true)}
+          onOpenPromptsEditor={() => setContentView('prompts')}
         />
 
         {/* Main Content Area */}
@@ -320,6 +339,33 @@ function App() {
                 />
 
                 <GitPanel projectName={selectedProject} />
+
+                <div className="h-6 w-px bg-border/50 mx-1" />
+
+                {/* Theme Controls */}
+                <div className="flex items-center gap-1">
+                  {/* Dark Mode Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={toggleDarkMode}
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Toggle Dark Mode</TooltipContent>
+                  </Tooltip>
+
+                  {/* Theme Selector */}
+                  <ThemeSelector
+                    currentTheme={theme}
+                    onThemeChange={setTheme}
+                    themes={themes}
+                  />
+                </div>
 
                 <div className="h-6 w-px bg-border/50 mx-1" />
 
@@ -379,23 +425,27 @@ function App() {
               />
             ) : (
               <div className="space-y-8 max-w-7xl mx-auto">
-                {/* Progress Dashboard */}
-                <ProgressDashboard
-                  passing={progress.passing}
-                  total={progress.total}
-                  percentage={progress.percentage}
-                  isConnected={wsState.isConnected}
-                  logs={wsState.activeAgents.length === 0 ? wsState.logs : undefined}
-                  agentStatus={wsState.activeAgents.length === 0 ? wsState.agentStatus : undefined}
-                />
+                {/* Progress Dashboard - Only show on Kanban view */}
+                {contentView === 'kanban' && (
+                  <>
+                    <ProgressDashboard
+                      passing={progress.passing}
+                      total={progress.total}
+                      percentage={progress.percentage}
+                      isConnected={wsState.isConnected}
+                      logs={wsState.activeAgents.length === 0 ? wsState.logs : undefined}
+                      agentStatus={wsState.activeAgents.length === 0 ? wsState.agentStatus : undefined}
+                    />
 
-                {/* Agent Mission Control */}
-                <AgentMissionControl
-                  agents={wsState.activeAgents}
-                  orchestratorStatus={wsState.orchestratorStatus}
-                  recentActivity={wsState.recentActivity}
-                  getAgentLogs={wsState.getAgentLogs}
-                />
+                    {/* Agent Mission Control */}
+                    <AgentMissionControl
+                      agents={wsState.activeAgents}
+                      orchestratorStatus={wsState.orchestratorStatus}
+                      recentActivity={wsState.recentActivity}
+                      getAgentLogs={wsState.getAgentLogs}
+                    />
+                  </>
+                )}
 
                 {/* Initializing State */}
                 {features &&
@@ -418,15 +468,25 @@ function App() {
                     </Card>
                   )}
 
-                {/* View Toggle */}
-                {features && (features.pending.length + features.in_progress.length + features.done.length) > 0 && (
+                {/* View Toggle - Only show for kanban view */}
+                {contentView === 'kanban' && features && (features.pending.length + features.in_progress.length + features.done.length) > 0 && (
                   <div className="flex justify-center sticky top-0 z-10 py-4 -my-4 bg-background/80 backdrop-blur-sm">
                     <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
                   </div>
                 )}
 
-                {/* Kanban / Graph */}
-                {viewMode === 'kanban' ? (
+                {/* Content Area - Render based on contentView */}
+                {contentView === 'ideation' && selectedProject ? (
+                  <IdeationContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                ) : contentView === 'roadmap' && selectedProject ? (
+                  <RoadmapContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                ) : contentView === 'context' && selectedProject ? (
+                  <ProjectContextContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                ) : contentView === 'knowledge' && selectedProject ? (
+                  <KnowledgeBaseContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                ) : contentView === 'prompts' && selectedProject ? (
+                  <PromptsContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                ) : viewMode === 'kanban' ? (
                   <KanbanBoard
                     features={features}
                     onFeatureClick={setSelectedFeature}
@@ -570,6 +630,26 @@ function App() {
             }}
           />
         )}
+
+        {/* Project Action Modals */}
+        <ConvexInitModal
+          isOpen={showConvexInit}
+          onClose={() => setShowConvexInit(false)}
+          projectName={selectedProject}
+        />
+
+        <ProjectContextModal
+          isOpen={showProjectContext}
+          onClose={() => setShowProjectContext(false)}
+          projectName={selectedProject}
+        />
+
+        <PromptsEditorModal
+          isOpen={showPromptsEditor}
+          onClose={() => setShowPromptsEditor(false)}
+          projectName={selectedProject}
+        />
+
 
         {/* Celebration */}
         {wsState.celebration && (
