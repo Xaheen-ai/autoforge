@@ -1,11 +1,11 @@
-import { BookOpen, Plus, Search, FileText, Save, Trash2 } from 'lucide-react'
+import { BookOpen, Plus, Search, FileText, Save, Trash2, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useKnowledgeBase } from '@/hooks/useMetadata'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface KnowledgeBaseContentProps {
     projectName: string
@@ -18,11 +18,22 @@ export function KnowledgeBaseContent({ projectName }: KnowledgeBaseContentProps)
     const [newFilename, setNewFilename] = useState('')
     const [editedContent, setEditedContent] = useState('')
     const [searchQuery, setSearchQuery] = useState('')
+    const [saveSuccess, setSaveSuccess] = useState(false)
+    const [deleteSuccess, setDeleteSuccess] = useState(false)
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+    useEffect(() => {
+        if (!selectedItem && !isCreating) return
+        setHasUnsavedChanges(true)
+    }, [editedContent])
 
     const handleSelectItem = async (filename: string) => {
+        if (hasUnsavedChanges && !confirm('You have unsaved changes. Continue?')) return
+
         setSelectedItem(filename)
         setIsCreating(false)
-        // Load content
+        setHasUnsavedChanges(false)
+
         try {
             const res = await fetch(`/api/projects/${projectName}/metadata/knowledge/${filename}`)
             const data = await res.json()
@@ -33,10 +44,13 @@ export function KnowledgeBaseContent({ projectName }: KnowledgeBaseContentProps)
     }
 
     const handleCreateNew = () => {
+        if (hasUnsavedChanges && !confirm('You have unsaved changes. Continue?')) return
+
         setIsCreating(true)
         setSelectedItem(null)
         setNewFilename('')
         setEditedContent('# New Knowledge Item\n\n## Overview\n\n## Details\n\n')
+        setHasUnsavedChanges(false)
     }
 
     const handleSave = () => {
@@ -49,6 +63,9 @@ export function KnowledgeBaseContent({ projectName }: KnowledgeBaseContentProps)
             onSuccess: () => {
                 setIsCreating(false)
                 setSelectedItem(filename)
+                setHasUnsavedChanges(false)
+                setSaveSuccess(true)
+                setTimeout(() => setSaveSuccess(false), 3000)
             },
         })
     }
@@ -60,153 +77,183 @@ export function KnowledgeBaseContent({ projectName }: KnowledgeBaseContentProps)
             onSuccess: () => {
                 setSelectedItem(null)
                 setEditedContent('')
+                setHasUnsavedChanges(false)
+                setDeleteSuccess(true)
+                setTimeout(() => setDeleteSuccess(false), 3000)
             },
         })
     }
 
-    const filteredItems = items.filter((item: any) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredItems = items.filter((item: string) =>
+        item.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     return (
-        <>
-            {/* Header */}
-            <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-category-3/10 rounded-xl flex items-center justify-center">
-                            <BookOpen className="text-category-3" size={24} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Knowledge Base</h1>
-                            <p className="text-muted-foreground">
-                                Project memory and decisions for {projectName}
-                            </p>
+        <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-category-3/10 rounded-xl flex items-center justify-center">
+                                <BookOpen className="text-category-3" size={24} />
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight">Knowledge Base</h1>
+                                <p className="text-muted-foreground">
+                                    Documentation for {projectName}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <Button size="lg" onClick={handleCreateNew} className="hover:shadow-glow-primary-sm transition-shadow">
-                    <Plus className="mr-2" size={20} />
-                    Add Knowledge
-                </Button>
-            </div>
-
-                {/* Search */}
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
-                    <Input
-                        placeholder="Search knowledge base..."
-                        className="pl-10 h-12 text-base"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-
-                {/* Content */}
-                {isLoading ? (
-                    <Card>
-                        <CardContent className="flex items-center justify-center py-16">
-                            <p className="text-muted-foreground">Loading...</p>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Sidebar */}
-                        <div className="col-span-3 space-y-4">
-                            <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm">Knowledge Items ({filteredItems.length})</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-1">
-                                    {filteredItems.length === 0 ? (
-                                        <p className="text-sm text-muted-foreground py-4 text-center">
-                                            {items.length === 0 ? 'No items yet' : 'No matches'}
-                                        </p>
-                                    ) : (
-                                        filteredItems.map((item: any) => (
-                                            <Button
-                                                key={item.filename}
-                                                variant={selectedItem === item.filename ? 'default' : 'ghost'}
-                                                size="sm"
-                                                className="w-full justify-start text-left"
-                                                onClick={() => handleSelectItem(item.filename)}
-                                            >
-                                                <FileText className="mr-2 flex-shrink-0" size={14} />
-                                                <span className="truncate">{item.title}</span>
-                                            </Button>
-                                        ))
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Editor */}
-                        <div className="col-span-9">
-                            <Card>
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <CardTitle>
-                                                {isCreating ? 'New Knowledge Item' : selectedItem || 'Select an item'}
-                                            </CardTitle>
-                                            <CardDescription>
-                                                Document architecture decisions, gotchas, and patterns
-                                            </CardDescription>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {selectedItem && !isCreating && (
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={handleDelete}
-                                                    disabled={isDeleting}
-                                                >
-                                                    <Trash2 className="mr-2" size={14} />
-                                                    Delete
-                                                </Button>
-                                            )}
-                                            <Button
-                                                size="sm"
-                                                onClick={handleSave}
-                                                disabled={isSaving || (!isCreating && !selectedItem)}
-                                            >
-                                                <Save className="mr-2" size={14} />
-                                                {isSaving ? 'Saving...' : 'Save'}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {isCreating && (
-                                        <div className="space-y-2">
-                                            <Label>Filename</Label>
-                                            <Input
-                                                value={newFilename}
-                                                onChange={(e) => setNewFilename(e.target.value)}
-                                                placeholder="architecture-decisions"
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                Will be saved as {newFilename || 'filename'}.md
-                                            </p>
-                                        </div>
-                                    )}
-                                    <Textarea
-                                        value={editedContent}
-                                        onChange={(e) => setEditedContent(e.target.value)}
-                                        placeholder="# Knowledge Item
-
-## Overview
-
-## Details"
-                                        className="min-h-[500px] font-mono text-sm"
-                                        disabled={!isCreating && !selectedItem}
-                                    />
-                                </CardContent>
-                            </Card>
-                        </div>
+                {/* Notifications */}
+                {saveSuccess && (
+                    <div className="bg-success/10 border border-success/20 text-success px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                        <CheckCircle2 size={16} />
+                        <span>Saved successfully</span>
                     </div>
                 )}
-        </>
+
+                {deleteSuccess && (
+                    <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                        <AlertCircle size={16} />
+                        <span>Deleted successfully</span>
+                    </div>
+                )}
+
+                {hasUnsavedChanges && !isSaving && (
+                    <div className="bg-warning/10 border border-warning/20 text-warning px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                        <AlertCircle size={16} />
+                        <span>Unsaved changes</span>
+                    </div>
+                )}
+
+                {/* Main content */}
+                <div className="grid grid-cols-12 gap-4">
+                    {/* Sidebar */}
+                    <div className="col-span-4 space-y-3">
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-base font-medium">Items</CardTitle>
+                                    <Button size="sm" onClick={handleCreateNew}>
+                                        <Plus size={14} className="mr-1" />
+                                        New
+                                    </Button>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="relative">
+                                    <Search className="absolute left-2.5 top-2.5 text-muted-foreground" size={16} />
+                                    <Input
+                                        placeholder="Search..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-8 h-9"
+                                    />
+                                </div>
+
+                                {isLoading ? (
+                                    <div className="flex flex-col items-center justify-center py-12 space-y-2">
+                                        <Loader2 className="animate-spin text-muted-foreground" size={24} />
+                                        <p className="text-xs text-muted-foreground">Loading...</p>
+                                    </div>
+                                ) : filteredItems.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-12 space-y-2">
+                                        <FileText className="text-muted-foreground/30" size={32} />
+                                        <p className="text-xs text-muted-foreground">
+                                            {searchQuery ? 'No matches' : 'No items yet'}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-1 max-h-[600px] overflow-y-auto">
+                                        {filteredItems.map((item: string) => (
+                                            <button
+                                                key={item}
+                                                onClick={() => handleSelectItem(item)}
+                                                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${selectedItem === item
+                                                    ? 'bg-primary/10 text-primary font-medium'
+                                                    : 'hover:bg-muted text-muted-foreground'
+                                                    }`}
+                                            >
+                                                <FileText size={14} />
+                                                <span className="truncate">{item.replace('.md', '')}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Editor */}
+                    <div className="col-span-8">
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <CardTitle className="text-base font-medium">
+                                            {isCreating ? 'New Item' : selectedItem ? selectedItem.replace('.md', '') : 'Select an item'}
+                                        </CardTitle>
+                                        <CardDescription className="text-xs">
+                                            {isCreating ? 'Create documentation' : selectedItem ? 'Edit content' : 'Choose from sidebar'}
+                                        </CardDescription>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {selectedItem && !isCreating && (
+                                            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={isDeleting}>
+                                                {isDeleting ? <Loader2 className="mr-1.5 animate-spin" size={14} /> : <Trash2 className="mr-1.5" size={14} />}
+                                                Delete
+                                            </Button>
+                                        )}
+                                        <Button onClick={handleSave} disabled={isSaving || (!selectedItem && !isCreating) || !hasUnsavedChanges} size="sm">
+                                            {isSaving ? (
+                                                <>
+                                                    <Loader2 className="mr-1.5 animate-spin" size={14} />
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Save className="mr-1.5" size={14} />
+                                                    Save
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {isCreating && (
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="filename" className="text-xs font-medium">Filename</Label>
+                                        <Input
+                                            id="filename"
+                                            placeholder="e.g., architecture, api-design"
+                                            value={newFilename}
+                                            onChange={(e) => setNewFilename(e.target.value)}
+                                            className="h-9"
+                                            autoFocus
+                                        />
+                                        <p className="text-xs text-muted-foreground">.md extension added automatically</p>
+                                    </div>
+                                )}
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="content" className="text-xs font-medium">Content (Markdown)</Label>
+                                    <Textarea
+                                        id="content"
+                                        value={editedContent}
+                                        onChange={(e) => setEditedContent(e.target.value)}
+                                        placeholder="# Title&#10;&#10;Write your documentation..."
+                                        className="min-h-[600px] font-mono text-xs resize-none"
+                                        disabled={!selectedItem && !isCreating}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+        </div>
     )
 }

@@ -1,4 +1,4 @@
-import { BookOpen, Settings, Keyboard, Lightbulb, Map, FileText, Database, Sparkles } from 'lucide-react'
+import { BookOpen, Settings, Keyboard, Lightbulb, Map, FileText, Database, Sparkles, LayoutGrid } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProjectSelector } from './ProjectSelector'
 import { Separator } from '@/components/ui/separator'
@@ -16,6 +16,7 @@ interface SidebarProps {
     onOpenRoadmap: () => void
     onOpenProjectContext: () => void
     onOpenKnowledge: () => void
+    onOpenKanban: () => void
     onOpenConvexInit: () => void
     onOpenPromptsEditor: () => void
     activeView?: 'kanban' | 'ideation' | 'roadmap' | 'context' | 'knowledge' | 'prompts'
@@ -33,6 +34,7 @@ export function Sidebar({
     onOpenRoadmap,
     onOpenProjectContext,
     onOpenKnowledge,
+    onOpenKanban,
     onOpenConvexInit,
     onOpenPromptsEditor,
     activeView
@@ -40,7 +42,7 @@ export function Sidebar({
     /** Returns Tailwind classes for a nav button based on whether it matches the active view */
     const navItemClass = (view?: SidebarProps['activeView']) =>
         view && activeView === view
-            ? 'w-full justify-start gap-3 bg-primary/10 text-primary border-l-2 border-primary font-medium'
+            ? 'w-full justify-start gap-3 bg-primary/10 text-primary border-l-2 border-primary font-medium shadow-glow-primary-sm'
             : 'w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:translate-x-0.5 transition-all duration-150'
     return (
         <aside className="w-64 bg-card border-r border-border flex flex-col h-full shrink-0 relative z-30">
@@ -81,6 +83,15 @@ export function Sidebar({
                                 Project Actions
                                 <span className="flex-1 h-px bg-border/50" />
                             </label>
+
+                            <Button
+                                variant="ghost"
+                                className={navItemClass('kanban')}
+                                onClick={onOpenKanban}
+                            >
+                                <LayoutGrid size={18} />
+                                Kanban
+                            </Button>
 
                             <Button
                                 variant="ghost"
@@ -138,14 +149,6 @@ export function Sidebar({
                                 Initialize Convex
                             </Button>
 
-                            <Button
-                                variant="ghost"
-                                className={navItemClass('prompts')}
-                                onClick={onOpenPromptsEditor}
-                            >
-                                <FileText size={18} />
-                                Edit Prompts
-                            </Button>
                         </div>
                     </>
                 )}

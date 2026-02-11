@@ -56,6 +56,7 @@ type ContentView = 'kanban' | 'ideation' | 'roadmap' | 'context' | 'knowledge' |
 function App() {
   // Content view state (what to show in main area)
   const [contentView, setContentView] = useState<ContentView>('kanban')
+  const [subPageLabel, setSubPageLabel] = useState<string | null>(null)
 
   // Initialize selected project from localStorage
   const [selectedProject, setSelectedProject] = useState<string | null>(() => {
@@ -122,6 +123,9 @@ function App() {
       // localStorage not available
     }
   }, [viewMode])
+
+  // Reset sub-page label when switching content views
+  useEffect(() => setSubPageLabel(null), [contentView])
 
   // Play sounds when features move between columns
   useFeatureSound(features)
@@ -234,9 +238,11 @@ function App() {
         setShowResetModal(true)
       }
 
-      // Escape : Close modals
+      // Escape : Close modals / navigate back
       if (e.key === 'Escape') {
-        if (showKeyboardHelp) {
+        if (subPageLabel) {
+          setSubPageLabel(null)
+        } else if (showKeyboardHelp) {
           setShowKeyboardHelp(false)
         } else if (showResetModal) {
           setShowResetModal(false)
@@ -258,7 +264,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedProject, showAddFeature, showExpandProject, selectedFeature, debugOpen, debugActiveTab, assistantOpen, features, showSettings, showKeyboardHelp, isSpecCreating, viewMode, showResetModal, wsState.agentStatus, hasSpec])
+  }, [selectedProject, showAddFeature, showExpandProject, selectedFeature, debugOpen, debugActiveTab, assistantOpen, features, showSettings, showKeyboardHelp, isSpecCreating, viewMode, showResetModal, wsState.agentStatus, hasSpec, subPageLabel])
 
   // Combine WebSocket progress with feature data
   const progress = wsState.progress.total > 0 ? wsState.progress : {
@@ -317,9 +323,24 @@ function App() {
                         {selectedProject}
                       </button>
                       <span className="text-muted-foreground">/</span>
-                      <span className="font-display font-bold text-base tracking-tight">
-                        {{ ideation: 'Ideation', roadmap: 'Roadmap', knowledge: 'Knowledge Base', prompts: 'Prompts', context: 'Project Context' }[contentView]}
-                      </span>
+                      {subPageLabel ? (
+                        <>
+                          <button
+                            onClick={() => setSubPageLabel(null)}
+                            className="font-display font-bold text-base tracking-tight hover:text-primary transition-colors cursor-pointer"
+                          >
+                            {{ ideation: 'Ideation', roadmap: 'Roadmap', knowledge: 'Knowledge Base', prompts: 'Prompts', context: 'Project Context' }[contentView]}
+                          </button>
+                          <span className="text-muted-foreground">/</span>
+                          <span className="font-display font-bold text-base tracking-tight truncate max-w-[200px]">
+                            {subPageLabel}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-display font-bold text-base tracking-tight">
+                          {{ ideation: 'Ideation', roadmap: 'Roadmap', knowledge: 'Knowledge Base', prompts: 'Prompts', context: 'Project Context' }[contentView]}
+                        </span>
+                      )}
                     </>
                   ) : (
                     <h2 className="font-display font-bold text-base tracking-tight">{selectedProject}</h2>
@@ -421,7 +442,7 @@ function App() {
 
           {/* Scrollable Main Content */}
           <main
-            className="flex-1 overflow-y-auto p-6 md:p-8 relative scroll-smooth"
+            className="flex-1 overflow-y-auto p-[15px] relative scroll-smooth"
             style={{ paddingBottom: debugOpen ? debugPanelHeight + 32 : COLLAPSED_DEBUG_PANEL_CLEARANCE }}
           >
             {!selectedProject ? (
@@ -453,7 +474,7 @@ function App() {
                 }}
               />
             ) : (
-              <div className="space-y-8 max-w-7xl mx-auto">
+              <div className="space-y-8">
                 {/* Progress Dashboard - Only show on Kanban view */}
                 {contentView === 'kanban' && (
                   <>
@@ -506,9 +527,9 @@ function App() {
 
                 {/* Content Area - Render based on contentView */}
                 {contentView === 'ideation' && selectedProject ? (
-                  <IdeationContent projectName={selectedProject} />
+                  <IdeationContent projectName={selectedProject} onDetailChange={setSubPageLabel} detailLabel={subPageLabel} />
                 ) : contentView === 'roadmap' && selectedProject ? (
-                  <RoadmapContent projectName={selectedProject} />
+                  <RoadmapContent projectName={selectedProject} onDetailChange={setSubPageLabel} detailLabel={subPageLabel} />
                 ) : contentView === 'context' && selectedProject ? (
                   <ProjectContextContent projectName={selectedProject} />
                 ) : contentView === 'knowledge' && selectedProject ? (

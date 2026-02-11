@@ -117,3 +117,57 @@ class BackendInterface(ABC):
     def delete_schedule(self, project_name: str, schedule_id: int) -> bool:
         """Delete a schedule."""
         pass
+
+    # =========================================================================
+    # Project Metadata
+    # =========================================================================
+
+    @abstractmethod
+    def get_ideation(self, project_name: str) -> str:
+        """Get ideation notes (markdown)."""
+        pass
+
+    @abstractmethod
+    def update_ideation(self, project_name: str, content: str) -> bool:
+        """Update ideation notes."""
+        pass
+
+    @abstractmethod
+    def get_context(self, project_name: str) -> dict:
+        """Get project context (JSON)."""
+        pass
+
+    @abstractmethod
+    def update_context(self, project_name: str, context: dict) -> dict:
+        """Update project context."""
+        pass
+
+    @abstractmethod
+    def list_knowledge_items(self, project_name: str) -> list[dict]:
+        """List knowledge base items."""
+        pass
+
+    @abstractmethod
+    def get_knowledge_item(self, project_name: str, filename: str) -> str:
+        """Get a knowledge item."""
+        pass
+
+    @abstractmethod
+    def save_knowledge_item(self, project_name: str, filename: str, content: str) -> bool:
+        """Save a knowledge item."""
+        pass
+
+    @abstractmethod
+    def delete_knowledge_item(self, project_name: str, filename: str) -> bool:
+        """Delete a knowledge item."""
+        pass
+
+    @abstractmethod
+    def get_roadmap(self, project_name: str) -> dict:
+        """Get project roadmap (JSON)."""
+        pass
+
+    @abstractmethod
+    def update_roadmap(self, project_name: str, roadmap: dict) -> dict:
+        """Update project roadmap."""
+        pass

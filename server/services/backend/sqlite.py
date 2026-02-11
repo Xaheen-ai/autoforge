@@ -422,3 +422,102 @@ class SQLiteBackend(BackendInterface):
             session.delete(s)
             session.commit()
             return True
+
+    # =========================================================================
+    # Project Metadata (Delegated to Files)
+    # =========================================================================
+    # Note: SQLite is only used for features/schedules. Metadata uses files.
+
+    def _get_metadata_path(self, project_name: str, filename: str):
+        """Get path to metadata file."""
+        from pathlib import Path
+        project_dir = get_project_path(project_name)
+        return Path(project_dir) / ".xaheen" / filename
+
+    def _get_kb_dir(self, project_name: str):
+        """Get knowledge base directory."""
+        from pathlib import Path
+        project_dir = get_project_path(project_name)
+        return Path(project_dir) / ".xaheen" / "kb"
+
+    def get_ideation(self, project_name: str) -> str:
+        """Get ideation notes."""
+        import json
+        path = self._get_metadata_path(project_name, "ideation.md")
+        return path.read_text(encoding="utf-8") if path.exists() else ""
+
+    def update_ideation(self, project_name: str, content: str) -> bool:
+        """Update ideation notes."""
+        path = self._get_metadata_path(project_name, "ideation.md")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+        return True
+
+    def get_context(self, project_name: str) -> dict:
+        """Get project context."""
+        import json
+        path = self._get_metadata_path(project_name, "context.json")
+        if not path.exists():
+            return {}
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def update_context(self, project_name: str, context: dict) -> dict:
+        """Update project context."""
+        import json
+        path = self._get_metadata_path(project_name, "context.json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(context, indent=2), encoding="utf-8")
+        return context
+
+    def list_knowledge_items(self, project_name: str) -> list[dict]:
+        """List knowledge base items."""
+        kb_dir = self._get_kb_dir(project_name)
+        if not kb_dir.exists():
+            return []
+        
+        items = []
+        for md_file in sorted(kb_dir.glob("*.md")):
+            items.append({
+                "filename": md_file.name,
+                "title": md_file.stem.replace("_", " ").replace("-", " ").title(),
+                "path": str(md_file),
+            })
+        return items
+
+    def get_knowledge_item(self, project_name: str, filename: str) -> str:
+        """Get knowledge item."""
+        kb_dir = self._get_kb_dir(project_name)
+        path = kb_dir / filename
+        return path.read_text(encoding="utf-8") if path.exists() else ""
+
+    def save_knowledge_item(self, project_name: str, filename: str, content: str) -> bool:
+        """Save knowledge item."""
+        kb_dir = self._get_kb_dir(project_name)
+        kb_dir.mkdir(parents=True, exist_ok=True)
+        (kb_dir / filename).write_text(content, encoding="utf-8")
+        return True
+
+    def delete_knowledge_item(self, project_name: str, filename: str) -> bool:
+        """Delete knowledge item."""
+        kb_dir = self._get_kb_dir(project_name)
+        path = kb_dir / filename
+        if path.exists():
+            path.unlink()
+            return True
+        return False
+
+    def get_roadmap(self, project_name: str) -> dict:
+        """Get project roadmap."""
+        import json
+        path = self._get_metadata_path(project_name, "roadmap.json")
+        if not path.exists():
+            return {"phases": [], "milestones": [], "currentPhase": None}
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def update_roadmap(self, project_name: str, roadmap: dict) -> dict:
+        """Update project roadmap."""
+        import json
+        path = self._get_metadata_path(project_name, "roadmap.json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(roadmap, indent=2), encoding="utf-8")
+        return roadmap

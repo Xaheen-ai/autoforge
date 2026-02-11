@@ -9,6 +9,7 @@
  */
 
 import type * as features from "../features.js";
+import type * as metadata from "../metadata.js";
 import type * as schedules from "../schedules.js";
 
 import type {
@@ -19,6 +20,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   features: typeof features;
+  metadata: typeof metadata;
   schedules: typeof schedules;
 }>;
 

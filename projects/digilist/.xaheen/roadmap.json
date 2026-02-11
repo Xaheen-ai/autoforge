@@ -1,0 +1,52 @@
+{
+    "phases": [
+        {
+            "name": "Phase 1: Foundation",
+            "status": "completed",
+            "duration": "2 weeks",
+            "tasks": [
+                "Setup project structure",
+                "Implement core features",
+                "Basic UI components"
+            ]
+        },
+        {
+            "name": "Phase 2: Enhancement",
+            "status": "in-progress",
+            "duration": "3 weeks",
+            "tasks": [
+                "Advanced features",
+                "Performance optimization",
+                "Testing coverage"
+            ]
+        },
+        {
+            "name": "Phase 3: Polish",
+            "status": "planned",
+            "duration": "2 weeks",
+            "tasks": [
+                "UI/UX refinements",
+                "Documentation",
+                "Deployment preparation"
+            ]
+        }
+    ],
+    "milestones": [
+        {
+            "name": "MVP Release",
+            "date": "2024-Q2",
+            "status": "completed"
+        },
+        {
+            "name": "Beta Launch",
+            "date": "2024-Q3",
+            "status": "in-progress"
+        },
+        {
+            "name": "Production Release",
+            "date": "2024-Q4",
+            "status": "planned"
+        }
+    ],
+    "currentPhase": "Phase 2: Enhancement"
+}

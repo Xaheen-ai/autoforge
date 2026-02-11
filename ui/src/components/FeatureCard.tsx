@@ -46,7 +46,7 @@ export function FeatureCard({ feature, onClick, isInProgress, allFeatures = [], 
         ${isInProgress ? 'animate-pulse' : ''}
         ${feature.passes ? 'border-primary/50' : ''}
         ${isBlocked && !feature.passes ? 'border-destructive/50 opacity-80' : ''}
-        ${hasActiveAgent ? 'ring-2 ring-primary ring-offset-2 shadow-[var(--glow-primary-sm)]' : ''}
+        ${hasActiveAgent ? 'ring-2 ring-primary ring-offset-2 shadow-glow-primary-sm animate-glow-pulse' : ''}
       `}
     >
       <CardContent className="p-4 space-y-3">

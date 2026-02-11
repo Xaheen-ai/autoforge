@@ -41,4 +41,38 @@ export default defineSchema({
     })
         .index("by_project", ["projectId"])
         .index("by_project_scheduleId", ["projectId", "scheduleId"]),
+
+    // Metadata tables (Phase 7: Convex Sync)
+    ideation: defineTable({
+        projectName: v.string(),
+        content: v.string(),
+        lastModified: v.number(),
+        syncedAt: v.number(),
+    })
+        .index("by_project", ["projectName"]),
+
+    context: defineTable({
+        projectName: v.string(),
+        context: v.any(), // JSON object
+        lastModified: v.number(),
+        syncedAt: v.number(),
+    })
+        .index("by_project", ["projectName"]),
+
+    roadmap: defineTable({
+        projectName: v.string(),
+        roadmap: v.any(), // JSON object
+        lastModified: v.number(),
+        syncedAt: v.number(),
+    })
+        .index("by_project", ["projectName"]),
+
+    knowledge: defineTable({
+        projectName: v.string(),
+        filename: v.string(),
+        content: v.string(),
+        lastModified: v.number(),
+        syncedAt: v.number(),
+    })
+        .index("by_project_file", ["projectName", "filename"]),
 });

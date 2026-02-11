@@ -1,4 +1,4 @@
-import { Lightbulb, Sparkles, Filter, Save, Trash2, Plus } from 'lucide-react'
+import { Lightbulb, Sparkles, Filter, Save, Trash2, Plus, ArrowLeft, Clock, Tag, Zap, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,23 +10,33 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import { AIProgressModal } from '@/components/AIProgressModal'
 import { useIdeation } from '@/hooks/useIdeation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCreateFeature } from '@/hooks/useProjects'
 
 interface IdeationContentProps {
     projectName: string
+    onDetailChange?: (label: string | null) => void
+    detailLabel?: string | null
 }
 
-export function IdeationContent({ projectName }: IdeationContentProps) {
+export function IdeationContent({ projectName, onDetailChange, detailLabel }: IdeationContentProps) {
     const [activeTab, setActiveTab] = useState<'generated' | 'saved'>('generated')
     const [categoryFilter, setCategoryFilter] = useState<string>('all')
     const [priorityFilter, setPriorityFilter] = useState<string>('all')
+    const [selectedIdea, setSelectedIdea] = useState<typeof generatedIdeas[0] | null>(null)
+
+    // Progress modal state
+    const [showProgress, setShowProgress] = useState(false)
+    const [progressStage, setProgressStage] = useState(0)
+    const [progress, setProgress] = useState(0)
+    const [aiThought, setAiThought] = useState('')
 
     const {
         generatedIdeas,
         isGenerating,
-        generateIdeas,
+        generateIdeasAsync,
         savedIdeas,
         saveIdea,
         dismissIdea,
@@ -36,6 +46,23 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
     } = useIdeation(projectName)
 
     const createFeatureMutation = useCreateFeature(projectName)
+
+    // Sync selectedIdea with detailLabel from parent
+    useEffect(() => {
+        if (detailLabel === null) {
+            setSelectedIdea(null)
+        }
+    }, [detailLabel])
+
+    const selectIdea = (idea: typeof generatedIdeas[0]) => {
+        setSelectedIdea(idea)
+        onDetailChange?.(idea.title)
+    }
+
+    const clearDetail = () => {
+        setSelectedIdea(null)
+        onDetailChange?.(null)
+    }
 
     const getCategoryColor = (category: string) => {
         const colors: Record<string, string> = {
@@ -73,16 +100,155 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
     const filteredSavedIdeas = filterIdeas(savedIdeas)
 
     const handleCreateFeature = async (idea: typeof generatedIdeas[0]) => {
-        // Create feature from idea
         await createFeatureMutation.mutateAsync({
             category: idea.category,
             name: idea.title,
             description: idea.description,
-            steps: [], // Will be filled in by user later
+            steps: [],
         })
-
-        // Dismiss the idea after creating feature
         dismissIdea(idea.id)
+    }
+
+    const handleGenerate = async () => {
+        setShowProgress(true)
+        setProgressStage(0)
+        setProgress(0)
+        setAiThought('')
+
+        const stages = [
+            { stage: 0, progress: 25, thought: "Scanning codebase to understand project architecture" },
+            { stage: 1, progress: 50, thought: "Analyzing recent changes and project documentation" },
+            { stage: 2, progress: 75, thought: "Considering UI improvements, performance optimizations, and new features" }
+        ]
+
+        for (const { stage, progress: p, thought } of stages) {
+            await new Promise(resolve => setTimeout(resolve, 800))
+            setProgressStage(stage)
+            setProgress(p)
+            setAiThought(thought)
+        }
+
+        try {
+            await generateIdeasAsync()
+            setProgressStage(3)
+            setProgress(100)
+            await new Promise(resolve => setTimeout(resolve, 1200))
+        } catch {
+            // Error handled by mutation
+        } finally {
+            setShowProgress(false)
+        }
+    }
+
+    // Detail page view
+    if (selectedIdea) {
+        return (
+            <div className="space-y-6">
+                {/* Page Header — matches list page style */}
+                <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-category-4/10 rounded-xl flex items-center justify-center">
+                                <Lightbulb className="text-category-4" size={24} />
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight">{selectedIdea.title}</h1>
+                                <p className="text-muted-foreground">
+                                    Idea details and actions
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Button variant="outline" onClick={clearDetail}>
+                        <ArrowLeft className="mr-2" size={16} />
+                        Back to Ideas
+                    </Button>
+                </div>
+
+                {/* Badges */}
+                <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className={`${getCategoryColor(selectedIdea.category)} text-white`}>
+                        {selectedIdea.category.charAt(0).toUpperCase() + selectedIdea.category.slice(1)}
+                    </Badge>
+                    <Badge className={`${getPriorityColor(selectedIdea.priority)} text-white`}>
+                        {selectedIdea.priority.charAt(0).toUpperCase() + selectedIdea.priority.slice(1)} Priority
+                    </Badge>
+                    <Badge variant="outline">
+                        {getEffortLabel(selectedIdea.effort)}
+                    </Badge>
+                </div>
+
+                {/* Description */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Description</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground leading-relaxed">{selectedIdea.description}</p>
+                    </CardContent>
+                </Card>
+
+                {/* Metadata grid */}
+                <div className="grid grid-cols-3 gap-4">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                                <Tag size={14} />
+                                Category
+                            </div>
+                            <p className="font-medium text-lg">{selectedIdea.category.charAt(0).toUpperCase() + selectedIdea.category.slice(1)}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                                <Zap size={14} />
+                                Priority
+                            </div>
+                            <p className="font-medium text-lg">{selectedIdea.priority.charAt(0).toUpperCase() + selectedIdea.priority.slice(1)}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                                <Clock size={14} />
+                                Effort
+                            </div>
+                            <p className="font-medium text-lg">{selectedIdea.effort.charAt(0).toUpperCase() + selectedIdea.effort.slice(1)}</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Timestamps */}
+                {selectedIdea.created_at && (
+                    <div className="text-sm text-muted-foreground">
+                        Created {new Date(selectedIdea.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                        {selectedIdea.saved_at && (
+                            <> &middot; Saved {new Date(selectedIdea.saved_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</>
+                        )}
+                    </div>
+                )}
+
+                {/* Actions */}
+                <Card>
+                    <CardContent className="flex items-center gap-3 py-4">
+                        <Button onClick={() => { saveIdea(selectedIdea); clearDetail() }} disabled={isSaving}>
+                            <Save className="mr-2" size={16} />
+                            Save Idea
+                        </Button>
+                        <Button variant="outline" onClick={() => { handleCreateFeature(selectedIdea); clearDetail() }}>
+                            <Plus className="mr-2" size={16} />
+                            Create Feature
+                        </Button>
+                        <Button variant="ghost" onClick={() => { dismissIdea(selectedIdea.id); clearDetail() }}>
+                            <Trash2 className="mr-2" size={16} />
+                            Dismiss
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     return (
@@ -103,7 +269,7 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                     </div>
                 </div>
 
-                <Button size="lg" onClick={() => generateIdeas()} disabled={isGenerating} className="hover:shadow-glow-primary-sm transition-shadow">
+                <Button size="lg" onClick={handleGenerate} disabled={isGenerating}>
                     <Sparkles className="mr-2" size={20} />
                     {isGenerating ? 'Generating...' : 'Generate Ideas'}
                 </Button>
@@ -158,16 +324,16 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                                     <div className="w-24 h-24 bg-gradient-to-br from-category-4/15 to-category-4/5 rounded-full flex items-center justify-center mb-6 animate-pulse ring-1 ring-category-4/10">
                                         <Sparkles size={44} className="text-category-4" />
                                     </div>
-                                    <h3 className="text-2xl font-semibold mb-3 animate-slide-up-fade opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+                                    <h3 className="text-2xl font-semibold mb-3">
                                         {generatedIdeas.length === 0 ? 'No Ideas Generated Yet' : 'No Ideas Match Filters'}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground text-center max-w-md mb-6 animate-slide-up-fade opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+                                    <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
                                         {generatedIdeas.length === 0
                                             ? 'Click "Generate Ideas" to let AI analyze your codebase and suggest improvements across features, refactors, optimizations, and bug fixes.'
                                             : 'Try adjusting your filters to see more ideas.'}
                                     </p>
                                     {generatedIdeas.length === 0 && (
-                                        <Button onClick={() => generateIdeas()} disabled={isGenerating}>
+                                        <Button onClick={handleGenerate} disabled={isGenerating}>
                                             <Sparkles className="mr-2" size={16} />
                                             {isGenerating ? 'Generating...' : 'Generate Ideas'}
                                         </Button>
@@ -175,8 +341,12 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            filteredGeneratedIdeas.map((idea, index) => (
-                                <Card key={idea.id} className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-slide-up-fade opacity-0" style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'forwards' }}>
+                            filteredGeneratedIdeas.map((idea) => (
+                                <Card
+                                    key={idea.id}
+                                    className="cursor-pointer transition-colors hover:bg-accent/50"
+                                    onClick={() => selectIdea(idea)}
+                                >
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 space-y-2">
@@ -192,14 +362,15 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                                                     </Badge>
                                                 </div>
                                                 <CardTitle className="text-xl">{idea.title}</CardTitle>
-                                                <CardDescription className="text-sm">
+                                                <CardDescription className="text-sm line-clamp-2">
                                                     {idea.description}
                                                 </CardDescription>
                                             </div>
+                                            <ChevronRight size={20} className="text-muted-foreground mt-1 shrink-0" />
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                             <Button
                                                 size="sm"
                                                 variant="default"
@@ -239,10 +410,10 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                                     <div className="w-24 h-24 bg-gradient-to-br from-category-7/15 to-category-7/5 rounded-full flex items-center justify-center mb-6 animate-pulse ring-1 ring-category-7/10">
                                         <Save size={44} className="text-category-7" />
                                     </div>
-                                    <h3 className="text-2xl font-semibold mb-3 animate-slide-up-fade opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+                                    <h3 className="text-2xl font-semibold mb-3">
                                         {savedIdeas.length === 0 ? 'No Saved Ideas' : 'No Ideas Match Filters'}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground text-center max-w-md animate-slide-up-fade opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+                                    <p className="text-sm text-muted-foreground text-center max-w-md">
                                         {savedIdeas.length === 0
                                             ? 'Save ideas from the Generated tab to keep track of improvements you want to implement.'
                                             : 'Try adjusting your filters to see more ideas.'}
@@ -250,8 +421,12 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            filteredSavedIdeas.map((idea, index) => (
-                                <Card key={idea.id} className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-slide-up-fade opacity-0" style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'forwards' }}>
+                            filteredSavedIdeas.map((idea) => (
+                                <Card
+                                    key={idea.id}
+                                    className="cursor-pointer transition-colors hover:bg-accent/50"
+                                    onClick={() => selectIdea(idea)}
+                                >
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 space-y-2">
@@ -267,14 +442,15 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                                                     </Badge>
                                                 </div>
                                                 <CardTitle className="text-xl">{idea.title}</CardTitle>
-                                                <CardDescription className="text-sm">
+                                                <CardDescription className="text-sm line-clamp-2">
                                                     {idea.description}
                                                 </CardDescription>
                                             </div>
+                                            <ChevronRight size={20} className="text-muted-foreground mt-1 shrink-0" />
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                             <Button
                                                 size="sm"
                                                 variant="outline"
@@ -299,6 +475,16 @@ export function IdeationContent({ projectName }: IdeationContentProps) {
                         )}
                     </TabsContent>
                 </Tabs>
+
+            {/* AI Progress Modal */}
+            <AIProgressModal
+                isOpen={showProgress}
+                operation="ideation"
+                currentStage={progressStage}
+                progress={progress}
+                aiThought={aiThought}
+                onClose={() => setShowProgress(false)}
+            />
         </>
     )
 }

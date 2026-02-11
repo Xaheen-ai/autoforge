@@ -237,6 +237,12 @@ def main() -> None:
     if migrated:
         print(f"Migrated project files to .xaheen/: {', '.join(migrated)}", flush=True)
 
+    # Validate and auto-create metadata files (Phase 6: Agent Integration)
+    from server.hooks import pre_session_hook
+    if not pre_session_hook(project_dir):
+        print("Error: Metadata validation failed", flush=True)
+        return
+
     # Parse batch testing feature IDs (comma-separated string -> list[int])
     testing_feature_ids: list[int] | None = None
     if args.testing_feature_ids:

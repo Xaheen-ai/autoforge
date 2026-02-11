@@ -167,7 +167,7 @@ export function ProjectContextModal({ isOpen, onClose, projectName }: ProjectCon
     }
 
 
-    return (
+    return (<>
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
                 <DialogHeader>
@@ -228,6 +228,7 @@ export function ProjectContextModal({ isOpen, onClose, projectName }: ProjectCon
                                             onClick={handleAnalyze}
                                             disabled={analyzeMutation.isPending}
                                             size="sm"
+                                            className="hover:shadow-glow-primary-sm transition-shadow"
                                         >
                                             {analyzeMutation.isPending ? (
                                                 <>
@@ -470,15 +471,17 @@ Add any important information about your project here...
                 )}
             </DialogContent>
 
-            {/* AI Progress Modal */}
-            <AIProgressModal
-                isOpen={showProgressModal}
-                operation="analysis"
-                currentStage={progressStage}
-                progress={progress}
-                aiThought={aiThought}
-                onClose={() => setShowProgressModal(false)}
-            />
         </Dialog>
+
+        {/* AI Progress Modal - rendered outside parent Dialog to avoid nesting issues */}
+        <AIProgressModal
+            isOpen={showProgressModal}
+            operation="analysis"
+            currentStage={progressStage}
+            progress={progress}
+            aiThought={aiThought}
+            onClose={() => setShowProgressModal(false)}
+        />
+    </>
     )
 }

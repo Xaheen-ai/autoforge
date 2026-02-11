@@ -157,7 +157,7 @@ export function TerminalTabs({
   )
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1 bg-zinc-900 border-b border-border overflow-x-auto">
+    <div className="flex items-center gap-1 px-2 py-1 bg-card border-b border-border overflow-x-auto">
       {/* Terminal tabs */}
       {terminals.map((terminal) => (
         <div
@@ -168,7 +168,7 @@ export function TerminalTabs({
             ${
               activeTerminalId === terminal.id
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                : 'bg-muted text-muted-foreground hover:bg-accent'
             }
           `}
           onClick={() => onSelect(terminal.id)}
@@ -217,7 +217,7 @@ export function TerminalTabs({
         variant="ghost"
         size="icon"
         onClick={onCreate}
-        className="h-8 w-8 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+        className="h-8 w-8 bg-muted text-muted-foreground hover:bg-accent"
         title="New terminal"
       >
         <Plus className="w-4 h-4" />

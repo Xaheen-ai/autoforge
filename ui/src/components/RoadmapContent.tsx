@@ -1,4 +1,4 @@
-import { Map, Sparkles, Calendar, Download, ChevronRight, Save, FileText } from 'lucide-react'
+import { Map, Sparkles, Calendar, Download, ChevronRight, Save, FileText, ArrowLeft, Clock, Tag, Zap, GitBranch } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,22 +11,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { AIProgressModal } from '@/components/AIProgressModal'
 import { useRoadmap } from '@/hooks/useRoadmap'
 import { useRoadmapMetadata } from '@/hooks/useMetadata'
 import { useState, useEffect } from 'react'
+import type { RoadmapFeature } from '@/lib/api'
 
 interface RoadmapContentProps {
   projectName: string
+  onDetailChange?: (label: string | null) => void
+  detailLabel?: string | null
 }
 
-export function RoadmapContent({ projectName }: RoadmapContentProps) {
+export function RoadmapContent({ projectName, onDetailChange, detailLabel }: RoadmapContentProps) {
   const [timeframe, setTimeframe] = useState<string>('6_months')
   const [activeTab, setActiveTab] = useState('ai')
+  const [selectedFeature, setSelectedFeature] = useState<RoadmapFeature | null>(null)
+
+  // Progress modal state
+  const [showProgress, setShowProgress] = useState(false)
+  const [progressStage, setProgressStage] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const [aiThought, setAiThought] = useState('')
 
   const {
     roadmap,
     isLoading,
-    generateRoadmap,
+    generateRoadmapAsync,
     isGenerating,
   } = useRoadmap(projectName)
 
@@ -37,6 +48,23 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
   useEffect(() => {
     setEditedRoadmap(JSON.stringify(metadataRoadmap, null, 2))
   }, [metadataRoadmap])
+
+  // Sync selectedFeature with detailLabel from parent
+  useEffect(() => {
+    if (detailLabel === null) {
+      setSelectedFeature(null)
+    }
+  }, [detailLabel])
+
+  const selectFeature = (feature: RoadmapFeature) => {
+    setSelectedFeature(feature)
+    onDetailChange?.(feature.title)
+  }
+
+  const clearDetail = () => {
+    setSelectedFeature(null)
+    onDetailChange?.(null)
+  }
 
   const handleSaveMetadata = () => {
     try {
@@ -68,6 +96,153 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
       1: 'Low'
     }
     return labels[priority] || 'Medium'
+  }
+
+  const getEffortLabel = (effort: string) => {
+    return effort.charAt(0).toUpperCase() + effort.slice(1) + ' Effort'
+  }
+
+  const handleGenerate = async () => {
+    setShowProgress(true)
+    setProgressStage(0)
+    setProgress(0)
+    setAiThought('')
+
+    const stages = [
+      { stage: 0, progress: 25, thought: "Scanning codebase and analyzing dependencies" },
+      { stage: 1, progress: 50, thought: "Organizing features into quarterly milestones" },
+      { stage: 2, progress: 75, thought: "Calculating timelines and identifying dependencies" }
+    ]
+
+    for (const { stage, progress: p, thought } of stages) {
+      await new Promise(resolve => setTimeout(resolve, 800))
+      setProgressStage(stage)
+      setProgress(p)
+      setAiThought(thought)
+    }
+
+    try {
+      await generateRoadmapAsync(timeframe)
+      setProgressStage(3)
+      setProgress(100)
+      await new Promise(resolve => setTimeout(resolve, 1200))
+    } catch {
+      // Error handled by mutation
+    } finally {
+      setShowProgress(false)
+    }
+  }
+
+  // Detail page view
+  if (selectedFeature) {
+    return (
+      <div className="space-y-6">
+        {/* Page Header — matches list page style */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-category-7/10 rounded-xl flex items-center justify-center">
+                <Map className="text-category-7" size={24} />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">{selectedFeature.title}</h1>
+                <p className="text-muted-foreground">
+                  Roadmap feature details
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Button variant="outline" onClick={clearDetail}>
+            <ArrowLeft className="mr-2" size={16} />
+            Back to Roadmap
+          </Button>
+        </div>
+
+        {/* Badges */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge className={`${getStatusColor(selectedFeature.status)} text-white`}>
+            {getStatusLabel(selectedFeature.status)}
+          </Badge>
+          <Badge variant="outline">
+            {getEffortLabel(selectedFeature.effort)}
+          </Badge>
+          <Badge variant="outline">
+            {getPriorityLabel(selectedFeature.priority)} Priority
+          </Badge>
+        </div>
+
+        {/* Description */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Description</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground leading-relaxed">{selectedFeature.description}</p>
+          </CardContent>
+        </Card>
+
+        {/* Metadata grid */}
+        <div className="grid grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                <Tag size={14} />
+                Milestone
+              </div>
+              <p className="font-medium text-lg">{selectedFeature.milestone}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                <Zap size={14} />
+                Priority
+              </div>
+              <p className="font-medium text-lg">{getPriorityLabel(selectedFeature.priority)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                <Clock size={14} />
+                Estimated Days
+              </div>
+              <p className="font-medium text-lg">{selectedFeature.estimated_days} days</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Dependencies */}
+        {selectedFeature.dependencies.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <GitBranch size={18} />
+                Dependencies
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {selectedFeature.dependencies.map((dep) => (
+                  <Badge key={dep} variant="outline">{dep}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Timestamps */}
+        <div className="text-sm text-muted-foreground">
+          {selectedFeature.created_at && (
+            <>Created {new Date(selectedFeature.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</>
+          )}
+          {selectedFeature.updated_at && (
+            <> &middot; Updated {new Date(selectedFeature.updated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -120,7 +295,7 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
                   </SelectContent>
                 </Select>
 
-                <Button onClick={() => generateRoadmap(timeframe)} disabled={isGenerating}>
+                <Button onClick={handleGenerate} disabled={isGenerating}>
                   <Sparkles className="mr-2" size={16} />
                   {isGenerating ? 'Generating...' : 'Generate'}
                 </Button>
@@ -140,8 +315,8 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
                   <div className="w-24 h-24 bg-gradient-to-br from-category-7/15 to-category-7/5 rounded-full flex items-center justify-center mb-6 animate-pulse ring-1 ring-category-7/10">
                     <Calendar size={44} className="text-category-7" />
                   </div>
-                  <h3 className="text-2xl font-semibold mb-3 animate-slide-up-fade opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>No Roadmap Yet</h3>
-                  <p className="text-muted-foreground text-center max-w-lg mb-8 animate-slide-up-fade opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+                  <h3 className="text-2xl font-semibold mb-3">No Roadmap Yet</h3>
+                  <p className="text-muted-foreground text-center max-w-lg mb-8">
                     Let AI create a strategic roadmap with quarterly milestones, feature dependencies, and realistic timelines based on your project's current state.
                   </p>
                   <div className="flex items-center gap-3">
@@ -155,7 +330,7 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
                         <SelectItem value="1_year">1 Year</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button size="lg" onClick={() => generateRoadmap(timeframe)} disabled={isGenerating}>
+                    <Button size="lg" onClick={handleGenerate} disabled={isGenerating}>
                       <Sparkles className="mr-2" size={20} />
                       {isGenerating ? 'Generating...' : 'Generate Roadmap'}
                     </Button>
@@ -190,8 +365,12 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
                       </div>
 
                       <div className="ml-14 space-y-3">
-                        {roadmap.features.filter(f => f.milestone === milestone.name).map((feature, featureIndex) => (
-                          <Card key={feature.id} className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer animate-slide-up-fade opacity-0" style={{ animationDelay: `${featureIndex * 60}ms`, animationFillMode: 'forwards' }}>
+                        {roadmap.features.filter(f => f.milestone === milestone.name).map((feature) => (
+                          <Card
+                            key={feature.id}
+                            className="cursor-pointer transition-colors hover:bg-accent/50"
+                            onClick={() => selectFeature(feature)}
+                          >
                             <CardHeader className="pb-3">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
@@ -207,7 +386,7 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
                                     </Badge>
                                   </div>
                                   <CardTitle className="text-base">{feature.title}</CardTitle>
-                                  <CardDescription className="text-sm mt-1">
+                                  <CardDescription className="text-sm mt-1 line-clamp-2">
                                     {feature.description}
                                   </CardDescription>
                                   {feature.dependencies.length > 0 && (
@@ -216,7 +395,7 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
                                     </p>
                                   )}
                                 </div>
-                                <ChevronRight size={20} className="text-muted-foreground" />
+                                <ChevronRight size={20} className="text-muted-foreground shrink-0" />
                               </div>
                             </CardHeader>
                           </Card>
@@ -261,6 +440,16 @@ export function RoadmapContent({ projectName }: RoadmapContentProps) {
             </Card>
           </TabsContent>
       </Tabs>
+
+      {/* AI Progress Modal */}
+      <AIProgressModal
+        isOpen={showProgress}
+        operation="roadmap"
+        currentStage={progressStage}
+        progress={progress}
+        aiThought={aiThought}
+        onClose={() => setShowProgress(false)}
+      />
     </>
   )
 }

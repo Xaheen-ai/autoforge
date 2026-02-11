@@ -123,6 +123,7 @@ export function useIdeation(projectName: string | null) {
         isGenerating: generateMutation.isPending,
         generateError: generateMutation.error,
         generateIdeas: generateMutation.mutate,
+        generateIdeasAsync: generateMutation.mutateAsync,
 
         // Saved ideas
         savedIdeas: savedIdeasQuery.data?.ideas || [],

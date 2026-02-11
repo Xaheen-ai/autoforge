@@ -31,6 +31,7 @@ export function useRoadmap(projectName: string | null) {
         error: roadmapQuery.error,
 
         generateRoadmap: generateMutation.mutate,
+        generateRoadmapAsync: generateMutation.mutateAsync,
         isGenerating: generateMutation.isPending,
         generateError: generateMutation.error,
     }

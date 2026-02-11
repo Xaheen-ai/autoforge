@@ -1,0 +1,22 @@
+{
+    "techStack": {
+        "frontend": "React + TypeScript + Vite",
+        "backend": "FastAPI + Python",
+        "database": "SQLite",
+        "stateManagement": "React Query"
+    },
+    "constraints": [
+        "Must support offline mode",
+        "Maximum bundle size: 500KB",
+        "Support for mobile devices"
+    ],
+    "conventions": {
+        "fileNaming": "kebab-case",
+        "componentStyle": "functional",
+        "importOrder": "external, internal, relative"
+    },
+    "environment": {
+        "nodeVersion": "18+",
+        "pythonVersion": "3.9+"
+    }
+}

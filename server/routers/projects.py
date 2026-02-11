@@ -1133,3 +1133,181 @@ async def get_roadmap_stats(name: str):
     stats = roadmap_mgr.get_roadmap_stats()
     
     return stats
+
+
+# ============================================================================
+# Metadata Management Endpoints
+# ============================================================================
+
+@router.get("/{name}/metadata/ideation")
+async def get_ideation(name: str):
+    """Get project ideation notes."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    try:
+        content = backend.get_ideation(name)
+        return {"content": content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get ideation: {e}")
+
+
+@router.put("/{name}/metadata/ideation")
+async def update_ideation(name: str, body: dict):
+    """Update project ideation notes."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    content = body.get("content", "")
+    
+    try:
+        success = backend.update_ideation(name, content)
+        return {"success": success}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update ideation: {e}")
+
+
+@router.get("/{name}/metadata/context")
+async def get_context(name: str):
+    """Get project context metadata."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    try:
+        context = backend.get_context(name)
+        return context
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get context: {e}")
+
+
+@router.put("/{name}/metadata/context")
+async def update_context(name: str, body: dict):
+    """Update project context metadata."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    try:
+        updated = backend.update_context(name, body)
+        return updated
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update context: {e}")
+
+
+@router.get("/{name}/metadata/knowledge")
+async def list_knowledge(name: str):
+    """List all knowledge base items."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    try:
+        items = backend.list_knowledge_items(name)
+        return {"items": items}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list knowledge items: {e}")
+
+
+@router.get("/{name}/metadata/knowledge/{filename}")
+async def get_knowledge_item(name: str, filename: str):
+    """Get a specific knowledge base item."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    # Validate filename (security)
+    if not re.match(r'^[a-zA-Z0-9_-]+\.md$', filename):
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    try:
+        content = backend.get_knowledge_item(name, filename)
+        if not content:
+            raise HTTPException(status_code=404, detail="Knowledge item not found")
+        return {"filename": filename, "content": content}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get knowledge item: {e}")
+
+
+@router.put("/{name}/metadata/knowledge/{filename}")
+async def save_knowledge_item(name: str, filename: str, body: dict):
+    """Save a knowledge base item."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    # Validate filename (security)
+    if not re.match(r'^[a-zA-Z0-9_-]+\.md$', filename):
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    content = body.get("content", "")
+    
+    try:
+        success = backend.save_knowledge_item(name, filename, content)
+        return {"success": success}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save knowledge item: {e}")
+
+
+@router.delete("/{name}/metadata/knowledge/{filename}")
+async def delete_knowledge_item(name: str, filename: str):
+    """Delete a knowledge base item."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    # Validate filename (security)
+    if not re.match(r'^[a-zA-Z0-9_-]+\.md$', filename):
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    try:
+        success = backend.delete_knowledge_item(name, filename)
+        if not success:
+            raise HTTPException(status_code=404, detail="Knowledge item not found")
+        return {"success": success}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete knowledge item: {e}")
+
+
+@router.get("/{name}/metadata/roadmap")
+async def get_roadmap_metadata(name: str):
+    """Get project roadmap metadata."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    try:
+        roadmap = backend.get_roadmap(name)
+        return roadmap
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get roadmap: {e}")
+
+
+@router.put("/{name}/metadata/roadmap")
+async def update_roadmap_metadata(name: str, body: dict):
+    """Update project roadmap metadata."""
+    from ..services.backend.factory import BackendFactory
+    
+    name = validate_project_name(name)
+    backend = BackendFactory.get_backend()
+    
+    try:
+        updated = backend.update_roadmap(name, body)
+        return updated
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update roadmap: {e}")
