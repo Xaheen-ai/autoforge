@@ -104,8 +104,8 @@ export function PromptsContent({ projectName, onBack }: PromptsContentProps) {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center">
-                        <Sparkles className="text-orange-500" size={24} />
+                    <div className="w-12 h-12 bg-category-5/10 rounded-xl flex items-center justify-center">
+                        <Sparkles className="text-category-5" size={24} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Prompts</h1>
@@ -200,9 +200,9 @@ export function PromptsContent({ projectName, onBack }: PromptsContentProps) {
 
             {/* Success Message */}
             {updateMutation.isSuccess && (
-                <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <AlertDescription className="text-green-800 dark:text-green-200">
+                <Alert className="bg-success/10 border-success/30">
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    <AlertDescription className="text-success">
                         Prompts saved successfully!
                     </AlertDescription>
                 </Alert>
@@ -224,7 +224,7 @@ export function PromptsContent({ projectName, onBack }: PromptsContentProps) {
                     <div className="text-sm text-muted-foreground">
                         {hasChanges && (
                             <span className="flex items-center gap-2">
-                                <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+                                <span className="w-2 h-2 bg-warning rounded-full animate-pulse"></span>
                                 Unsaved changes
                             </span>
                         )}

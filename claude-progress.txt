@@ -1,0 +1,106 @@
+## 2026-02-11: Component Theme Token Polish
+
+### What was implemented
+Polished six UI components to replace hardcoded color classes with theme-aware design tokens:
+
+1. **CelebrationOverlay.tsx** - Replaced `bg-green-500 border-green-600` with `bg-success border-success/80`, `text-yellow-300` with `text-warning`, and hardcoded hex confetti colors with oklch theme-aware colors.
+2. **ProgressDashboard.tsx** - Replaced `text-yellow-500` Sparkles with `text-warning`, added `shadow-[var(--glow-primary-sm)]` glow to the progress bar when agent is running.
+3. **FeatureCard.tsx** - Replaced hardcoded `bg-pink-500`, `bg-cyan-500`, etc. category colors with `bg-category-1` through `bg-category-7` tokens. Added `hover:shadow-md hover:-translate-y-0.5` hover effect. Added `shadow-[var(--glow-primary-sm)]` glow when hasActiveAgent.
+4. **AgentMissionControl.tsx** - Replaced heavy solid `bg-primary` header with `bg-gradient-to-r from-primary/10 via-primary/5 to-transparent` gradient. Updated text colors from `text-primary-foreground` to `text-primary`/`text-foreground`/`text-muted-foreground` to remain visible on the lighter background.
+5. **AssistantPanel.tsx** - Replaced solid `bg-primary` header with gradient `bg-gradient-to-r from-primary/10 via-primary/5 to-transparent`. Upgraded panel shadow from `shadow-xl` to `shadow-2xl`. Updated close button colors for visibility.
+6. **OrchestratorStatusCard.tsx** - Replaced all hardcoded Tailwind color classes (`bg-blue-100 text-blue-700`, `bg-purple-100 text-purple-700`, `bg-green-100 text-green-700`, `bg-amber-100 text-amber-700`, `text-yellow-600`) with semantic tokens (`bg-info/10 text-info`, `bg-category-6/10 text-category-6`, `bg-success/10 text-success`, `bg-warning/10 text-warning`). Removed dark: variant overrides since tokens auto-adapt.
+
+### Key files changed
+- ui/src/components/CelebrationOverlay.tsx
+- ui/src/components/ProgressDashboard.tsx
+- ui/src/components/FeatureCard.tsx
+- ui/src/components/AgentMissionControl.tsx
+- ui/src/components/AssistantPanel.tsx
+- ui/src/components/OrchestratorStatusCard.tsx
+
+### Verification
+- `npm run build` passes cleanly (tsc + vite)
+- `npm run lint` shows only pre-existing errors in unrelated files
+- No new TypeScript or ESLint errors introduced
+
+### Notes
+- All existing functionality (event handlers, props, imports) preserved
+- Theme tokens defined in ui/src/styles/globals.css auto-adapt to dark mode and all theme variants (Twitter, Claude, Neo Brutalism, Retro Arcade, Aurora, Business)
+
+## 2026-02-11: Content Page Theme Token Migration (Batch 2)
+
+### What was implemented
+Replaced hardcoded Tailwind color classes with theme-responsive CSS custom property tokens
+across six content page components. Added hover lift animations to idea/feature Cards and a
+glow shadow for active-agent FeatureCards.
+
+### Key files changed
+- ui/src/components/IdeationContent.tsx
+  - Icon container: bg-yellow-500/10 -> bg-category-4/10, text-yellow-500 -> text-category-4
+  - getCategoryColor: feature->bg-category-7, refactor->bg-category-6, optimization->bg-category-3, bug-fix->bg-category-1
+  - getPriorityColor: high->bg-warning, medium->bg-category-4, low->bg-muted
+  - Saved tab empty state: bg-blue-500/10 -> bg-category-7/10, text-blue-500 -> text-category-7
+  - Added hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 to idea Cards
+- ui/src/components/RoadmapContent.tsx
+  - Header icon: bg-blue-500/10 -> bg-category-7/10, text-blue-500 -> text-category-7
+  - getStatusColor: completed->bg-success, in-progress->bg-info, planned->bg-muted
+  - Milestone circle: bg-blue-500 -> bg-primary
+  - Added hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 to feature Cards
+- ui/src/components/KnowledgeBaseContent.tsx
+  - Icon: bg-green-500/10 -> bg-category-3/10, text-green-500 -> text-category-3
+  - AI suggestions gradient: from-green-500/5 to-blue-500/5 border-green-500/20 -> from-category-3/5 to-category-7/5 border-category-3/20
+- ui/src/components/ProjectContextContent.tsx
+  - Icon: bg-purple-500/10 -> bg-category-6/10, text-purple-500 -> text-category-6
+  - Code2 icon: text-blue-500 -> text-category-7
+  - AI summary gradient: from-purple-500/5 to-blue-500/5 border-purple-500/20 -> from-category-6/5 to-category-7/5 border-category-6/20
+- ui/src/components/PromptsContent.tsx
+  - Icon: bg-orange-500/10 -> bg-category-5/10, text-orange-500 -> text-category-5
+  - Unsaved indicator: bg-orange-500 -> bg-warning
+  - Success alert: bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 -> bg-success/10 border-success/30
+  - Success text: text-green-600 dark:text-green-400 / text-green-800 dark:text-green-200 -> text-success
+- ui/src/components/FeatureCard.tsx
+  - getCategoryColor array: bg-pink-500 through bg-blue-500 -> bg-category-1 through bg-category-7
+  - Card hover: added hover:shadow-md hover:-translate-y-0.5
+  - Active agent: added shadow-[var(--glow-primary-sm)] alongside existing ring-2
+
+### Verification
+- npm run build: PASSED (tsc -b && vite build, 0 errors)
+- npm run lint: All errors/warnings are pre-existing; no new issues introduced
+
+### Notes
+- No imports were added or removed
+- All existing functionality preserved
+- FeatureCard already had category-color and hover changes from Batch 1; this session verified they were in place
+
+## 2026-02-11: Comprehensive Theme Token Migration (16 files)
+
+### What was implemented
+Replaced ALL remaining hardcoded Tailwind color classes with theme-responsive semantic tokens across 16 component files. This completes the theme token migration for the entire UI.
+
+### Files changed
+- SettingsModal.tsx: text-green-500 → text-success, bg-green-100/dark → bg-success/10
+- ChatMessage.tsx: system message colors (bg-green-*, text-green-*) → success tokens
+- ProjectSelector.tsx: Convex init message success/error badges → success/destructive tokens
+- DependencyGraph.tsx: All node status colors (yellow/cyan/green/red) → warning/info/success/destructive tokens; legend dots updated
+- ExpandProjectChat.tsx: connection indicators, completion footer → success/warning tokens
+- SpecCreationChat.tsx: connection indicators, YOLO button, completion footer → success/warning tokens
+- ResetProjectModal.tsx: check icons text-green-600 → text-success
+- SetupWizard.tsx: continue button, status icons → success/warning tokens
+- Terminal.tsx: connection dot, exit code text → success/warning tokens
+- AssistantChat.tsx: connection status icon → text-success
+- RoadmapModal.tsx: icon colors (blue/red/green/purple) → category-7/destructive/success/category-6
+- IdeationModal.tsx: icon colors (yellow/blue/green/orange/purple) → category-4/category-7/success/warning/category-6
+- GitPanel.tsx: success message text-green-600 → text-success
+- AgentThought.tsx: sparkles text-yellow-500 → text-warning
+- ScheduleModal.tsx: YOLO mode label text-yellow-600 → text-warning
+- KnowledgeBaseContent.tsx: no changes needed (already uses category tokens; bg-blue-500 only in commented-out code)
+
+### Verification
+- `npm run build` passes cleanly (TypeScript + Vite production build)
+- Grep confirmed zero remaining hardcoded color classes (green-*, yellow-*, red-*, cyan-*, blue-*, purple-*, orange-*) in components/*.tsx
+- All dark: variant overrides removed where semantic tokens auto-adapt
+
+### What should be worked on next
+- Verify visual appearance in each theme (Twitter, Claude, Neo Brutalism, Retro Arcade, Aurora, Business) in both light/dark modes
+- Consider migrating `text-white` in completion footers to `text-success-foreground`/`text-destructive-foreground` for full token compliance
+- Audit remaining files outside of components/ for any lingering hardcoded colors (e.g., pages/, App.tsx)

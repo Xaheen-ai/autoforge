@@ -21,7 +21,7 @@ export function IdeationModal({ isOpen, onClose, projectName }: IdeationModalPro
             <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Lightbulb className="text-yellow-500" size={24} />
+                        <Lightbulb className="text-category-4" size={24} />
                         Ideation - {projectName}
                     </DialogTitle>
                     <DialogDescription>
@@ -34,7 +34,7 @@ export function IdeationModal({ isOpen, onClose, projectName }: IdeationModalPro
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Sparkles size={18} className="text-blue-500" />
+                                    <Sparkles size={18} className="text-category-7" />
                                     Feature Suggestions
                                 </CardTitle>
                                 <CardDescription>
@@ -51,7 +51,7 @@ export function IdeationModal({ isOpen, onClose, projectName }: IdeationModalPro
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <TrendingUp size={18} className="text-green-500" />
+                                    <TrendingUp size={18} className="text-success" />
                                     Performance Analysis
                                 </CardTitle>
                                 <CardDescription>
@@ -68,7 +68,7 @@ export function IdeationModal({ isOpen, onClose, projectName }: IdeationModalPro
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <AlertTriangle size={18} className="text-orange-500" />
+                                    <AlertTriangle size={18} className="text-warning" />
                                     Security Scan
                                 </CardTitle>
                                 <CardDescription>
@@ -85,7 +85,7 @@ export function IdeationModal({ isOpen, onClose, projectName }: IdeationModalPro
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Lightbulb size={18} className="text-purple-500" />
+                                    <Lightbulb size={18} className="text-category-6" />
                                     Code Quality
                                 </CardTitle>
                                 <CardDescription>

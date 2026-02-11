@@ -121,7 +121,7 @@ export function AIProgressModal({
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Sparkles className="text-purple-500 animate-pulse" size={24} />
+                        <Sparkles className="text-category-6 animate-pulse" size={24} />
                         AI Generation in Progress
                     </DialogTitle>
                 </DialogHeader>
@@ -133,9 +133,9 @@ export function AIProgressModal({
                             <span className="text-muted-foreground">Progress</span>
                             <span className="font-medium">{Math.round(progress)}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                             <div
-                                className="bg-purple-600 h-full transition-all duration-300 ease-out"
+                                className="bg-primary h-full transition-all duration-300 ease-out"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -152,19 +152,19 @@ export function AIProgressModal({
                                 <div
                                     key={stage.id}
                                     className={`flex items-center gap-3 p-3 rounded-lg transition-all ${isCurrent
-                                        ? 'bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800'
+                                        ? 'bg-primary/5 border border-primary/20'
                                         : isComplete
-                                            ? 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
-                                            : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 opacity-50'
+                                            ? 'bg-success/10 border border-success/30'
+                                            : 'bg-muted/50 border border-border opacity-50'
                                         }`}
                                 >
                                     <div className="flex-shrink-0">
                                         {isComplete ? (
-                                            <CheckCircle2 className="text-green-600 dark:text-green-400" size={20} />
+                                            <CheckCircle2 className="text-success" size={20} />
                                         ) : isCurrent ? (
-                                            <Loader2 className="text-purple-600 dark:text-purple-400 animate-spin" size={20} />
+                                            <Loader2 className="text-primary animate-spin" size={20} />
                                         ) : (
-                                            <StageIcon className="text-gray-400" size={20} />
+                                            <StageIcon className="text-muted-foreground" size={20} />
                                         )}
                                     </div>
                                     <div className="flex-1">
@@ -182,14 +182,14 @@ export function AIProgressModal({
 
                     {/* AI Thought Bubble */}
                     {aiThought && currentStage < stages.length - 1 && (
-                        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                        <div className="bg-gradient-to-r from-primary/5 to-info/5 p-4 rounded-lg border border-primary/20">
                             <div className="flex items-start gap-3">
-                                <Brain className="text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1" size={20} />
+                                <Brain className="text-primary flex-shrink-0 mt-1" size={20} />
                                 <div>
-                                    <div className="text-xs font-semibold text-purple-900 dark:text-purple-100 mb-1">
+                                    <div className="text-xs font-semibold text-foreground mb-1">
                                         AI is thinking...
                                     </div>
-                                    <div className="text-sm text-purple-800 dark:text-purple-200 italic">
+                                    <div className="text-sm text-muted-foreground italic">
                                         "{aiThought}"
                                     </div>
                                 </div>
@@ -200,10 +200,10 @@ export function AIProgressModal({
                     {/* Success State */}
                     {currentStage === stages.length - 1 && (
                         <div className="text-center py-4">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 mb-3">
-                                <CheckCircle2 className="text-green-600 dark:text-green-400" size={32} />
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/10 mb-3">
+                                <CheckCircle2 className="text-success" size={32} />
                             </div>
-                            <div className="text-lg font-semibold text-green-900 dark:text-green-100">
+                            <div className="text-lg font-semibold text-foreground">
                                 {currentStageData.message}
                             </div>
                         </div>

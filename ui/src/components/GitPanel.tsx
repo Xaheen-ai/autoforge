@@ -230,7 +230,7 @@ export function GitPanel({ projectName }: GitPanelProps) {
 
                     {/* Status messages */}
                     {successMsg && (
-                        <div className="flex items-center gap-1.5 text-xs text-green-600">
+                        <div className="flex items-center gap-1.5 text-xs text-success">
                             <Check size={12} />
                             {successMsg}
                         </div>

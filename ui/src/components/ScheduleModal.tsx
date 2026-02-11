@@ -217,7 +217,7 @@ export function ScheduleModal({ projectName, isOpen, onClose }: ScheduleModalPro
                           {/* Metadata */}
                           <div className="flex gap-3 text-xs text-muted-foreground">
                             {schedule.yolo_mode && (
-                              <span className="font-semibold text-yellow-600">YOLO mode</span>
+                              <span className="font-semibold text-warning">YOLO mode</span>
                             )}
                             <span className="flex items-center gap-1">
                               <GitBranch size={12} />

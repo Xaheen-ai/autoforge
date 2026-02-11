@@ -21,7 +21,7 @@ export function RoadmapModal({ isOpen, onClose, projectName }: RoadmapModalProps
             <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Map className="text-blue-500" size={24} />
+                        <Map className="text-category-7" size={24} />
                         Roadmap - {projectName}
                     </DialogTitle>
                     <DialogDescription>
@@ -34,7 +34,7 @@ export function RoadmapModal({ isOpen, onClose, projectName }: RoadmapModalProps
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Target size={18} className="text-red-500" />
+                                    <Target size={18} className="text-destructive" />
                                     Feature Planning
                                 </CardTitle>
                                 <CardDescription>
@@ -51,7 +51,7 @@ export function RoadmapModal({ isOpen, onClose, projectName }: RoadmapModalProps
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <TrendingUp size={18} className="text-green-500" />
+                                    <TrendingUp size={18} className="text-success" />
                                     Competitor Analysis
                                 </CardTitle>
                                 <CardDescription>
@@ -68,7 +68,7 @@ export function RoadmapModal({ isOpen, onClose, projectName }: RoadmapModalProps
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Users size={18} className="text-purple-500" />
+                                    <Users size={18} className="text-category-6" />
                                     Audience Targeting
                                 </CardTitle>
                                 <CardDescription>
@@ -85,7 +85,7 @@ export function RoadmapModal({ isOpen, onClose, projectName }: RoadmapModalProps
                         <Card className="cursor-pointer hover:border-primary transition-colors">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Map size={18} className="text-blue-500" />
+                                    <Map size={18} className="text-category-7" />
                                     Milestone Planning
                                 </CardTitle>
                                 <CardDescription>

@@ -40,14 +40,14 @@ function getStateColor(state: ActiveAgent['state']): string {
     case 'success':
       return 'text-primary'
     case 'error':
-      return 'text-yellow-600'
+      return 'text-warning'
     case 'struggling':
-      return 'text-orange-500'
+      return 'text-category-5'
     case 'working':
     case 'testing':
       return 'text-primary'
     case 'thinking':
-      return 'text-yellow-600'
+      return 'text-warning'
     default:
       return 'text-muted-foreground'
   }
@@ -58,13 +58,13 @@ function getAgentTypeBadge(agentType: AgentType): { label: string; className: st
   if (agentType === 'testing') {
     return {
       label: 'TEST',
-      className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+      className: 'bg-category-6/10 text-category-6',
       icon: FlaskConical,
     }
   }
   return {
     label: 'CODE',
-    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+    className: 'bg-info/10 text-info',
     icon: Code,
   }
 }

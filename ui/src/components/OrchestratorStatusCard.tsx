@@ -41,7 +41,7 @@ function getStateColor(state: OrchestratorState): string {
     case 'monitoring':
       return 'text-primary'
     case 'initializing':
-      return 'text-yellow-600 dark:text-yellow-400'
+      return 'text-warning'
     default:
       return 'text-muted-foreground'
   }
@@ -91,26 +91,26 @@ export function OrchestratorStatusCard({ status }: OrchestratorStatusCardProps) 
             {/* Status badges row */}
             <div className="flex flex-wrap items-center gap-2">
               {/* Coding agents badge */}
-              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700">
+              <Badge variant="outline" className="bg-info/10 text-info border-info/30">
                 <Code size={12} />
                 Coding: {status.codingAgents}
               </Badge>
 
               {/* Testing agents badge */}
-              <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700">
+              <Badge variant="outline" className="bg-category-6/10 text-category-6 border-category-6/30">
                 <FlaskConical size={12} />
                 Testing: {status.testingAgents}
               </Badge>
 
               {/* Ready queue badge */}
-              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700">
+              <Badge variant="outline" className="bg-success/10 text-success border-success/30">
                 <Clock size={12} />
                 Ready: {status.readyCount}
               </Badge>
 
               {/* Blocked badge (only show if > 0) */}
               {status.blockedCount > 0 && (
-                <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700">
+                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">
                   <Lock size={12} />
                   Blocked: {status.blockedCount}
                 </Badge>

@@ -557,7 +557,7 @@ export function Terminal({ projectName, terminalId, isActive }: TerminalProps) {
       <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
         <div
           className={`w-2 h-2 rounded-full ${
-            isConnected ? 'bg-green-500' : 'bg-destructive'
+            isConnected ? 'bg-success' : 'bg-destructive'
           }`}
           title={isConnected ? 'Connected' : 'Disconnected'}
         />
@@ -565,7 +565,7 @@ export function Terminal({ projectName, terminalId, isActive }: TerminalProps) {
           <span className="text-xs font-mono text-muted-foreground">Connecting...</span>
         )}
         {hasExited && exitCode !== null && (
-          <span className="text-xs font-mono text-yellow-500">
+          <span className="text-xs font-mono text-warning">
             Exit: {exitCode}
           </span>
         )}

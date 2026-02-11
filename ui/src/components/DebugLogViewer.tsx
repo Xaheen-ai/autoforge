@@ -279,11 +279,11 @@ export function DebugLogViewer({
   const getLogColor = (level: LogLevel): string => {
     switch (level) {
       case 'error':
-        return 'text-red-500'
+        return 'text-destructive'
       case 'warn':
-        return 'text-yellow-500'
+        return 'text-warning'
       case 'debug':
-        return 'text-blue-400'
+        return 'text-info'
       case 'info':
       default:
         return 'text-foreground'
@@ -334,7 +334,7 @@ export function DebugLogViewer({
             onClick={onToggle}
             className="flex items-center gap-2 hover:bg-accent px-2 py-1 rounded transition-colors cursor-pointer"
           >
-            <TerminalIcon size={16} className="text-green-500" />
+            <TerminalIcon size={16} className="text-success" />
             <span className="font-mono text-sm text-foreground font-bold">
               Debug
             </span>
@@ -407,7 +407,7 @@ export function DebugLogViewer({
                 </Badge>
               )}
               {isAutoScrollPaused() && (
-                <Badge variant="default" className="bg-yellow-500 text-yellow-950">
+                <Badge variant="warning">
                   Paused
                 </Badge>
               )}

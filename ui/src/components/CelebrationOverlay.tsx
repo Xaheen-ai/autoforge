@@ -17,7 +17,7 @@ function generateConfetti(count: number) {
     x: Math.random() * 100,
     delay: Math.random() * 0.5,
     duration: 1 + Math.random() * 1,
-    color: ['#ff006e', '#ffd60a', '#70e000', '#00b4d8', '#8338ec'][Math.floor(Math.random() * 5)],
+    color: ['oklch(0.65 0.24 350)', 'oklch(0.80 0.17 85)', 'oklch(0.63 0.19 150)', 'oklch(0.72 0.14 195)', 'oklch(0.55 0.24 300)'][Math.floor(Math.random() * 5)],
     rotation: Math.random() * 360,
   }))
 }
@@ -83,16 +83,16 @@ export function CelebrationOverlay({ agentName, featureName, onComplete }: Celeb
       {/* Celebration card - click to dismiss */}
       <Card
         onClick={dismiss}
-        className="p-6 bg-green-500 border-green-600 animate-bounce-in pointer-events-auto cursor-pointer hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-primary"
+        className="p-6 bg-success border-success/80 animate-bounce-in pointer-events-auto cursor-pointer hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-primary"
         role="button"
         tabIndex={0}
       >
         <CardContent className="p-0 flex flex-col items-center gap-4">
           {/* Icons */}
           <div className="flex items-center gap-2">
-            <Sparkles size={24} className="text-yellow-300 animate-pulse" />
+            <Sparkles size={24} className="text-warning animate-pulse" />
             <PartyPopper size={28} className="text-white" />
-            <Sparkles size={24} className="text-yellow-300 animate-pulse" />
+            <Sparkles size={24} className="text-warning animate-pulse" />
           </div>
 
           {/* Avatar celebrating */}

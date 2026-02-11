@@ -29,11 +29,11 @@ export function RoadmapContent({ projectName, onBack }: RoadmapContentProps) {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      completed: 'bg-green-500',
-      'in-progress': 'bg-blue-500',
-      planned: 'bg-gray-500'
+      completed: 'bg-success',
+      'in-progress': 'bg-info',
+      planned: 'bg-muted'
     }
-    return colors[status] || 'bg-gray-500'
+    return colors[status] || 'bg-muted'
   }
 
   const getStatusLabel = (status: string) => {
@@ -67,8 +67,8 @@ export function RoadmapContent({ projectName, onBack }: RoadmapContentProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                  <Map className="text-blue-500" size={24} />
+                <div className="w-12 h-12 bg-category-7/10 rounded-xl flex items-center justify-center">
+                  <Map className="text-category-7" size={24} />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight">Roadmap</h1>
@@ -109,8 +109,8 @@ export function RoadmapContent({ projectName, onBack }: RoadmapContentProps) {
         ) : !roadmap ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-20">
-              <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-6">
-                <Calendar size={40} className="text-blue-500" />
+              <div className="w-20 h-20 bg-category-7/10 rounded-full flex items-center justify-center mb-6">
+                <Calendar size={40} className="text-category-7" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">No Roadmap Yet</h3>
               <p className="text-muted-foreground text-center max-w-lg mb-8">
@@ -150,7 +150,7 @@ export function RoadmapContent({ projectName, onBack }: RoadmapContentProps) {
               {roadmap.milestones.map((milestone, idx) => (
                 <div key={idx} className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
                       {milestone.name.split(' ')[0]}
                     </div>
                     <div>
@@ -163,7 +163,7 @@ export function RoadmapContent({ projectName, onBack }: RoadmapContentProps) {
 
                   <div className="ml-14 space-y-3">
                     {roadmap.features.filter(f => f.milestone === milestone.name).map((feature) => (
-                      <Card key={feature.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                      <Card key={feature.id} className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">

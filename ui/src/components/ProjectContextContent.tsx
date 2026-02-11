@@ -28,8 +28,8 @@ export function ProjectContextContent({ projectName, onBack }: ProjectContextCon
                     <div className="flex items-start justify-between">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                                    <FileText className="text-purple-500" size={24} />
+                                <div className="w-12 h-12 bg-category-6/10 rounded-xl flex items-center justify-center">
+                                    <FileText className="text-category-6" size={24} />
                                 </div>
                                 <div>
                                     <h1 className="text-3xl font-bold tracking-tight">Project Context</h1>
@@ -106,7 +106,7 @@ export function ProjectContextContent({ projectName, onBack }: ProjectContextCon
                                     <div className="space-y-1">
                                         <p className="text-sm font-medium text-muted-foreground">Primary Language</p>
                                         <div className="flex items-center gap-2">
-                                            <Code2 size={16} className="text-blue-500" />
+                                            <Code2 size={16} className="text-category-7" />
                                             <span className="text-base font-semibold">TypeScript</span>
                                         </div>
                                     </div>
@@ -119,10 +119,10 @@ export function ProjectContextContent({ projectName, onBack }: ProjectContextCon
                         </Card>
 
                         {/* AI Summary */}
-                        <Card className="bg-gradient-to-br from-purple-500/5 to-blue-500/5 border-purple-500/20">
+                        <Card className="bg-gradient-to-br from-category-6/5 to-category-7/5 border-category-6/20">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Sparkles size={20} className="text-purple-500" />
+                                    <Sparkles size={20} className="text-category-6" />
                                     AI Understanding
                                 </CardTitle>
                             </CardHeader>

@@ -225,8 +225,8 @@ export function ProjectSelector({
       {/* Convex Init Message */}
       {convexInitMessage && (
         <div className={`absolute top-full left-0 right-0 mt-2 p-3 rounded-md text-sm ${convexInitMessage.type === 'success'
-            ? 'bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
-            : 'bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
+            ? 'bg-success/10 text-success border border-success/30'
+            : 'bg-destructive/10 text-destructive border border-destructive/30'
           }`}>
           {convexInitMessage.text}
         </div>

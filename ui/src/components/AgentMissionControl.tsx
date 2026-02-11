@@ -60,11 +60,11 @@ export function AgentMissionControl({
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-primary hover:bg-primary/90 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent hover:from-primary/15 hover:via-primary/8 hover:to-transparent transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Rocket size={20} className="text-primary-foreground" />
-          <span className="font-semibold text-primary-foreground uppercase tracking-wide">
+          <Rocket size={20} className="text-primary" />
+          <span className="font-semibold text-foreground uppercase tracking-wide">
             Mission Control
           </span>
           <Badge variant="secondary" className="ml-2">
@@ -79,9 +79,9 @@ export function AgentMissionControl({
           </Badge>
         </div>
         {isExpanded ? (
-          <ChevronUp size={20} className="text-primary-foreground" />
+          <ChevronUp size={20} className="text-muted-foreground" />
         ) : (
-          <ChevronDown size={20} className="text-primary-foreground" />
+          <ChevronDown size={20} className="text-muted-foreground" />
         )}
       </button>
 

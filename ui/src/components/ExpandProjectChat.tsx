@@ -157,14 +157,14 @@ export function ExpandProjectChat({
     switch (connectionStatus) {
       case 'connected':
         return (
-          <span className="flex items-center gap-1 text-xs text-green-500">
+          <span className="flex items-center gap-1 text-xs text-success">
             <Wifi size={12} />
             Connected
           </span>
         )
       case 'connecting':
         return (
-          <span className="flex items-center gap-1 text-xs text-yellow-500">
+          <span className="flex items-center gap-1 text-xs text-warning">
             <Wifi size={12} className="animate-pulse" />
             Connecting...
           </span>
@@ -196,7 +196,7 @@ export function ExpandProjectChat({
           </h2>
           <ConnectionIndicator />
           {featuresCreated > 0 && (
-            <span className="flex items-center gap-1 text-sm text-green-500 font-bold">
+            <span className="flex items-center gap-1 text-sm text-success font-bold">
               <Plus size={14} />
               {featuresCreated} added
             </span>
@@ -205,7 +205,7 @@ export function ExpandProjectChat({
 
         <div className="flex items-center gap-2">
           {isComplete && (
-            <span className="flex items-center gap-1 text-sm text-green-500 font-bold">
+            <span className="flex items-center gap-1 text-sm text-success font-bold">
               <CheckCircle2 size={16} />
               Complete
             </span>
@@ -371,7 +371,7 @@ export function ExpandProjectChat({
 
       {/* Completion footer */}
       {isComplete && (
-        <div className="p-4 border-t-2 border-border bg-green-500 text-white">
+        <div className="p-4 border-t-2 border-border bg-success text-success-foreground">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CheckCircle2 size={20} />

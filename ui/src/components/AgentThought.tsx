@@ -117,7 +117,7 @@ export function AgentThought({ logs, agentStatus }: AgentThoughtProps) {
           {isRunning && (
             <Sparkles
               size={10}
-              className="absolute -top-1 -right-1 text-yellow-500 animate-pulse"
+              className="absolute -top-1 -right-1 text-warning animate-pulse"
             />
           )}
         </div>

@@ -104,7 +104,7 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
           {isReady && (
             <Button
               onClick={onComplete}
-              className="w-full mt-8 bg-green-500 hover:bg-green-600 text-white"
+              className="w-full mt-8 bg-success hover:bg-success/90 text-success-foreground"
             >
               Continue to Dashboard
             </Button>
@@ -149,11 +149,11 @@ function SetupItem({
       {/* Status Icon */}
       <div className="flex-shrink-0 mt-1">
         {status === 'success' ? (
-          <CheckCircle2 size={24} className="text-green-500" />
+          <CheckCircle2 size={24} className="text-success" />
         ) : status === 'error' ? (
           <XCircle size={24} className="text-destructive" />
         ) : status === 'warning' ? (
-          <XCircle size={24} className="text-yellow-500" />
+          <XCircle size={24} className="text-warning" />
         ) : (
           <Loader2 size={24} className="animate-spin text-primary" />
         )}

@@ -165,7 +165,7 @@ export function AssistantPanel({ projectName, isOpen, onClose }: AssistantPanelP
           bg-card
           border-l border-border
           transform transition-transform duration-300 ease-out
-          flex flex-col shadow-xl
+          flex flex-col shadow-2xl
           ${isOpen ? 'translate-x-0' : 'translate-x-full'}
         `}
         style={{ width: `${panelWidth}px`, maxWidth: `${MAX_WIDTH_VW}vw` }}
@@ -182,7 +182,7 @@ export function AssistantPanel({ projectName, isOpen, onClose }: AssistantPanelP
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary text-primary-foreground">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
           <div className="flex items-center gap-2">
             <div className="bg-card text-foreground border border-border p-1.5 rounded">
               <Bot size={18} />
@@ -196,7 +196,7 @@ export function AssistantPanel({ projectName, isOpen, onClose }: AssistantPanelP
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-primary-foreground hover:bg-primary-foreground/20"
+            className="text-muted-foreground hover:bg-muted/50"
             title="Close Assistant (Press A)"
             aria-label="Close Assistant"
           >

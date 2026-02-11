@@ -76,9 +76,9 @@ export function ConvexInitButton({ projectName, backendType }: ConvexInitButtonP
             </div>
 
             {initStatus === 'success' && (
-                <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-                    <AlertDescription className="text-green-800 dark:text-green-200">
-                        ✓ Convex templates copied! Run <code className="px-1 py-0.5 rounded bg-green-100 dark:bg-green-900">npx convex dev</code> in your project directory to complete setup.
+                <Alert className="bg-success/10 border-success/30">
+                    <AlertDescription className="text-success">
+                        ✓ Convex templates copied! Run <code className="px-1 py-0.5 rounded bg-success/20">npx convex dev</code> in your project directory to complete setup.
                     </AlertDescription>
                 </Alert>
             )}

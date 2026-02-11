@@ -128,18 +128,18 @@ export function ResetProjectModal({
               {resetType === 'quick' ? (
                 <>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-green-600" />
+                    <Check size={14} className="text-success" />
                     App spec and prompts
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-green-600" />
+                    <Check size={14} className="text-success" />
                     Project code and files
                   </li>
                 </>
               ) : (
                 <>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-green-600" />
+                    <Check size={14} className="text-success" />
                     Project code and files
                   </li>
                   <li className="flex items-center gap-2 text-muted-foreground/70">

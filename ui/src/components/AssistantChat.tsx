@@ -210,7 +210,7 @@ export function AssistantChat({
         <div className="flex items-center gap-2">
           {connectionStatus === 'connected' ? (
             <>
-              <Wifi size={14} className="text-green-500" />
+              <Wifi size={14} className="text-success" />
               <span className="text-xs text-muted-foreground">Connected</span>
             </>
           ) : connectionStatus === 'connecting' ? (

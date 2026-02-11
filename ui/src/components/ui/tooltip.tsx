@@ -55,7 +55,7 @@ function TooltipContent({
         {children}
         <TooltipPrimitive.Arrow
           data-slot="tooltip-arrow"
-          className="fill-neutral-900"
+          className="fill-foreground"
         />
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>

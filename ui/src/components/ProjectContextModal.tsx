@@ -172,7 +172,7 @@ export function ProjectContextModal({ isOpen, onClose, projectName }: ProjectCon
             <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <FolderCog className="text-blue-500" size={24} />
+                        <FolderCog className="text-category-6" size={24} />
                         Project Context - {projectName}
                     </DialogTitle>
                     <DialogDescription>
@@ -300,9 +300,9 @@ export function ProjectContextModal({ isOpen, onClose, projectName }: ProjectCon
                                     )}
 
                                     {analyzeMutation.isSuccess && (
-                                        <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                            <AlertDescription className="text-green-800 dark:text-green-200">
+                                        <Alert className="bg-success/10 border-success/30">
+                                            <CheckCircle2 className="h-4 w-4 text-success" />
+                                            <AlertDescription className="text-success">
                                                 Codebase analyzed successfully!
                                             </AlertDescription>
                                         </Alert>
@@ -348,9 +348,9 @@ Add any important information about your project here...
                                     </div>
 
                                     {notesMutation.isSuccess && (
-                                        <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                            <AlertDescription className="text-green-800 dark:text-green-200">
+                                        <Alert className="bg-success/10 border-success/30">
+                                            <CheckCircle2 className="h-4 w-4 text-success" />
+                                            <AlertDescription className="text-success">
                                                 Notes saved successfully!
                                             </AlertDescription>
                                         </Alert>
@@ -449,9 +449,9 @@ Add any important information about your project here...
                                     </div>
 
                                     {configMutation.isSuccess && (
-                                        <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                            <AlertDescription className="text-green-800 dark:text-green-200">
+                                        <Alert className="bg-success/10 border-success/30">
+                                            <CheckCircle2 className="h-4 w-4 text-success" />
+                                            <AlertDescription className="text-success">
                                                 Configuration updated!
                                             </AlertDescription>
                                         </Alert>

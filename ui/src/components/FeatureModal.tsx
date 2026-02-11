@@ -15,16 +15,16 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 
-// Generate consistent color for category
+// Generate consistent color for category using theme tokens
 function getCategoryColor(category: string): string {
   const colors = [
-    'bg-pink-500',
-    'bg-cyan-500',
-    'bg-green-500',
-    'bg-yellow-500',
-    'bg-orange-500',
-    'bg-purple-500',
-    'bg-blue-500',
+    'bg-category-1',
+    'bg-category-2',
+    'bg-category-3',
+    'bg-category-4',
+    'bg-category-5',
+    'bg-category-6',
+    'bg-category-7',
   ]
 
   let hash = 0
@@ -162,16 +162,16 @@ export function FeatureModal({ feature, projectName, onClose }: FeatureModalProp
 
           {/* Blocked By Warning */}
           {blockingDeps.length > 0 && (
-            <Alert variant="destructive" className="border-orange-500 bg-orange-50 dark:bg-orange-950/20">
-              <AlertTriangle className="h-4 w-4 text-orange-600" />
+            <Alert variant="destructive" className="border-warning/50 bg-warning/10">
+              <AlertTriangle className="h-4 w-4 text-warning" />
               <AlertDescription>
-                <h4 className="font-semibold mb-1 text-orange-700 dark:text-orange-400">Blocked By</h4>
-                <p className="text-sm text-orange-600 dark:text-orange-300 mb-2">
+                <h4 className="font-semibold mb-1 text-warning">Blocked By</h4>
+                <p className="text-sm text-warning/80 mb-2">
                   This feature cannot start until the following dependencies are complete:
                 </p>
                 <ul className="space-y-1">
                   {blockingDeps.map(dep => (
-                    <li key={dep.id} className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-300">
+                    <li key={dep.id} className="flex items-center gap-2 text-sm text-warning/80">
                       <Circle size={14} />
                       <span className="font-mono text-xs">#{dep.id}</span>
                       <span>{dep.name}</span>

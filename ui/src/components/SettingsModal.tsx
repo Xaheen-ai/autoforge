@@ -242,7 +242,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   <Label className="text-sm">API Key</Label>
                   {settings.api_has_auth_token && !authTokenInput && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <ShieldCheck size={14} className="text-green-500" />
+                      <ShieldCheck size={14} className="text-success" />
                       <span>Configured</span>
                       <Button
                         variant="ghost"
@@ -441,7 +441,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <p className="text-sm text-muted-foreground">
                 Personal Access Token for cloning private repositories.
                 {settings.github_has_token && (
-                  <span className="ml-2 inline-flex items-center rounded-full bg-green-100 dark:bg-green-900 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-200">
+                  <span className="ml-2 inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
                     Configured
                   </span>
                 )}

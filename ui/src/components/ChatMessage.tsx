@@ -58,12 +58,12 @@ export const ChatMessage = memo(function ChatMessage({ message }: ChatMessagePro
     },
     system: {
       icon: Info,
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
-      textColor: 'text-green-900 dark:text-green-100',
+      bgColor: 'bg-success/10',
+      textColor: 'text-success',
       align: 'justify-center',
       bubbleAlign: 'items-center',
-      iconBg: 'bg-green-500',
-      iconColor: 'text-white',
+      iconBg: 'bg-success',
+      iconColor: 'text-success-foreground',
     },
   }
 

@@ -112,7 +112,7 @@ export function ProgressDashboard({
           {/* Progress Bar */}
           <div className="h-2.5 bg-muted rounded-full overflow-hidden flex-1">
             <div
-              className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+              className={`h-full bg-primary rounded-full transition-all duration-500 ease-out ${isRunning ? 'shadow-[var(--glow-primary-sm)]' : ''}`}
               style={{ width: `${percentage}%` }}
             />
           </div>
@@ -133,7 +133,7 @@ export function ProgressDashboard({
             <div className="relative shrink-0">
               <Brain size={16} className="text-primary" strokeWidth={2.5} />
               {isRunning && (
-                <Sparkles size={8} className="absolute -top-1 -right-1 text-yellow-500 animate-pulse" />
+                <Sparkles size={8} className="absolute -top-1 -right-1 text-warning animate-pulse" />
               )}
             </div>
             <p

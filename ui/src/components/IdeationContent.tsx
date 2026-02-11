@@ -40,21 +40,21 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
 
     const getCategoryColor = (category: string) => {
         const colors: Record<string, string> = {
-            feature: 'bg-blue-500',
-            refactor: 'bg-purple-500',
-            optimization: 'bg-green-500',
-            'bug-fix': 'bg-red-500'
+            feature: 'bg-category-7',
+            refactor: 'bg-category-6',
+            optimization: 'bg-category-3',
+            'bug-fix': 'bg-category-1'
         }
-        return colors[category] || 'bg-gray-500'
+        return colors[category] || 'bg-muted'
     }
 
     const getPriorityColor = (priority: string) => {
         const colors: Record<string, string> = {
-            high: 'bg-orange-500',
-            medium: 'bg-yellow-500',
-            low: 'bg-gray-500'
+            high: 'bg-warning',
+            medium: 'bg-category-4',
+            low: 'bg-muted'
         }
-        return colors[priority] || 'bg-gray-500'
+        return colors[priority] || 'bg-muted'
     }
 
     const getEffortLabel = (effort: string) => {
@@ -104,8 +104,8 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                     <div className="flex items-start justify-between">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center">
-                                    <Lightbulb className="text-yellow-500" size={24} />
+                                <div className="w-12 h-12 bg-category-4/10 rounded-xl flex items-center justify-center">
+                                    <Lightbulb className="text-category-4" size={24} />
                                 </div>
                                 <div>
                                     <h1 className="text-3xl font-bold tracking-tight">Ideation</h1>
@@ -169,8 +169,8 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                         {filteredGeneratedIdeas.length === 0 ? (
                             <Card className="border-dashed">
                                 <CardContent className="flex flex-col items-center justify-center py-16">
-                                    <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mb-4">
-                                        <Sparkles size={32} className="text-yellow-500" />
+                                    <div className="w-16 h-16 bg-category-4/10 rounded-full flex items-center justify-center mb-4">
+                                        <Sparkles size={32} className="text-category-4" />
                                     </div>
                                     <h3 className="text-lg font-semibold mb-2">
                                         {generatedIdeas.length === 0 ? 'No Ideas Generated Yet' : 'No Ideas Match Filters'}
@@ -190,7 +190,7 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                             </Card>
                         ) : (
                             filteredGeneratedIdeas.map((idea) => (
-                                <Card key={idea.id} className="hover:shadow-md transition-shadow">
+                                <Card key={idea.id} className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 space-y-2">
@@ -250,8 +250,8 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                         {filteredSavedIdeas.length === 0 ? (
                             <Card className="border-dashed">
                                 <CardContent className="flex flex-col items-center justify-center py-16">
-                                    <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
-                                        <Save size={32} className="text-blue-500" />
+                                    <div className="w-16 h-16 bg-category-7/10 rounded-full flex items-center justify-center mb-4">
+                                        <Save size={32} className="text-category-7" />
                                     </div>
                                     <h3 className="text-lg font-semibold mb-2">
                                         {savedIdeas.length === 0 ? 'No Saved Ideas' : 'No Ideas Match Filters'}
@@ -265,7 +265,7 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                             </Card>
                         ) : (
                             filteredSavedIdeas.map((idea) => (
-                                <Card key={idea.id} className="hover:shadow-md transition-shadow">
+                                <Card key={idea.id} className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 space-y-2">

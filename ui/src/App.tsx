@@ -293,6 +293,7 @@ function App() {
           onOpenKnowledge={() => setContentView('knowledge')}
           onOpenConvexInit={() => setShowConvexInit(true)}
           onOpenPromptsEditor={() => setContentView('prompts')}
+          activeView={contentView}
         />
 
         {/* Main Content Area */}
@@ -302,9 +303,15 @@ function App() {
             <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm px-6 flex items-center justify-between shrink-0 z-20">
               {/* Left: Project Context */}
               <div className="flex items-center gap-4">
-                <h2 className="font-display font-bold text-xl tracking-tight">
-                  {selectedProject}
-                </h2>
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Projects</span>
+                  <span className="text-muted-foreground">/</span>
+                  <h2 className="font-display font-bold text-base tracking-tight">{selectedProject}</h2>
+                </div>
+
+                {/* Connection Indicator */}
+                <div className={`w-2 h-2 rounded-full ${wsState.isConnected ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
 
                 {/* Mode Badges */}
                 <div className="flex items-center gap-2">
@@ -324,36 +331,42 @@ function App() {
 
               {/* Right: Project Actions */}
               <div className="flex items-center gap-3">
-                <AgentControl
-                  projectName={selectedProject}
-                  status={wsState.agentStatus}
-                  defaultConcurrency={selectedProjectData?.default_concurrency}
-                />
+                {/* Agent Control Group */}
+                <div className="bg-muted/50 rounded-lg px-2 py-1">
+                  <AgentControl
+                    projectName={selectedProject}
+                    status={wsState.agentStatus}
+                    defaultConcurrency={selectedProjectData?.default_concurrency}
+                  />
+                </div>
 
-                <div className="h-6 w-px bg-border/50 mx-1" />
+                <div className="h-5 w-px bg-border" />
 
-                <DevServerControl
-                  projectName={selectedProject}
-                  status={wsState.devServerStatus}
-                  url={wsState.devServerUrl}
-                />
+                {/* DevServer + Git Group */}
+                <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-2 py-1">
+                  <DevServerControl
+                    projectName={selectedProject}
+                    status={wsState.devServerStatus}
+                    url={wsState.devServerUrl}
+                  />
+                  <GitPanel projectName={selectedProject} />
+                </div>
 
-                <GitPanel projectName={selectedProject} />
+                <div className="h-5 w-px bg-border" />
 
-                <div className="h-6 w-px bg-border/50 mx-1" />
-
-                {/* Theme Controls */}
-                <div className="flex items-center gap-1">
-                  {/* Dark Mode Toggle */}
+                {/* Theme Controls Group */}
+                <div className="flex items-center gap-1 bg-muted/50 rounded-lg px-2 py-1">
+                  {/* Dark Mode Toggle with crossfade animation */}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         onClick={toggleDarkMode}
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-foreground relative overflow-hidden"
                       >
-                        {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+                        <Sun size={18} className={`absolute transition-all duration-300 ${darkMode ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'}`} />
+                        <Moon size={18} className={`transition-all duration-300 ${darkMode ? '-rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'}`} />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>Toggle Dark Mode</TooltipContent>
@@ -367,10 +380,10 @@ function App() {
                   />
                 </div>
 
-                <div className="h-6 w-px bg-border/50 mx-1" />
+                <div className="h-5 w-px bg-border" />
 
-                <div className="flex items-center gap-1">
-                  {/* Reset Project */}
+                {/* Reset Group */}
+                <div className="bg-muted/50 rounded-lg px-2 py-1">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button

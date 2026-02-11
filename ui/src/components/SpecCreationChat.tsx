@@ -198,14 +198,14 @@ export function SpecCreationChat({
     switch (connectionStatus) {
       case 'connected':
         return (
-          <span className="flex items-center gap-1 text-xs text-green-500">
+          <span className="flex items-center gap-1 text-xs text-success">
             <Wifi size={12} />
             Connected
           </span>
         )
       case 'connecting':
         return (
-          <span className="flex items-center gap-1 text-xs text-yellow-500">
+          <span className="flex items-center gap-1 text-xs text-warning">
             <Wifi size={12} className="animate-pulse" />
             Connecting...
           </span>
@@ -240,7 +240,7 @@ export function SpecCreationChat({
 
         <div className="flex items-center gap-2">
           {isComplete && (
-            <span className="flex items-center gap-1 text-sm text-green-500 font-bold">
+            <span className="flex items-center gap-1 text-sm text-success font-bold">
               <CheckCircle2 size={16} />
               Complete
             </span>
@@ -451,7 +451,7 @@ export function SpecCreationChat({
 
       {/* Completion footer */}
       {isComplete && (
-        <div className={`p-4 border-t-2 border-border ${initializerStatus === 'error' ? 'bg-destructive' : 'bg-green-500'
+        <div className={`p-4 border-t-2 border-border ${initializerStatus === 'error' ? 'bg-destructive' : 'bg-success'
           }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -493,7 +493,7 @@ export function SpecCreationChat({
                     onClick={() => setYoloEnabled(!yoloEnabled)}
                     variant={yoloEnabled ? "default" : "secondary"}
                     size="sm"
-                    className={yoloEnabled ? 'bg-yellow-500 hover:bg-yellow-600 text-yellow-900' : ''}
+                    className={yoloEnabled ? 'bg-warning hover:bg-warning/90 text-warning-foreground' : ''}
                     title="YOLO Mode: Skip testing for rapid prototyping"
                   >
                     <Zap size={16} />

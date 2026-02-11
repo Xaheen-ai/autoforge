@@ -36,8 +36,8 @@ export function KnowledgeBaseContent({ projectName, onBack }: KnowledgeBaseConte
                     <div className="flex items-start justify-between">
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center">
-                                    <BookOpen className="text-green-500" size={24} />
+                                <div className="w-12 h-12 bg-category-3/10 rounded-xl flex items-center justify-center">
+                                    <BookOpen className="text-category-3" size={24} />
                                 </div>
                                 <div>
                                     <h1 className="text-3xl font-bold tracking-tight">Knowledge Base</h1>
@@ -78,8 +78,8 @@ export function KnowledgeBaseContent({ projectName, onBack }: KnowledgeBaseConte
                         {/* Empty State */}
                         <Card className="border-dashed">
                             <CardContent className="flex flex-col items-center justify-center py-20">
-                                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6">
-                                    <BookOpen size={40} className="text-green-500" />
+                                <div className="w-20 h-20 bg-category-3/10 rounded-full flex items-center justify-center mb-6">
+                                    <BookOpen size={40} className="text-category-3" />
                                 </div>
                                 <h3 className="text-2xl font-semibold mb-3">No Knowledge Entries Yet</h3>
                                 <p className="text-muted-foreground text-center max-w-lg mb-8">
@@ -93,10 +93,10 @@ export function KnowledgeBaseContent({ projectName, onBack }: KnowledgeBaseConte
                         </Card>
 
                         {/* AI Suggestions Card */}
-                        <Card className="bg-gradient-to-br from-green-500/5 to-blue-500/5 border-green-500/20">
+                        <Card className="bg-gradient-to-br from-category-3/5 to-category-7/5 border-category-3/20">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Sparkles size={18} className="text-green-500" />
+                                    <Sparkles size={18} className="text-category-3" />
                                     AI Suggestions
                                 </CardTitle>
                                 <CardDescription>
@@ -116,7 +116,7 @@ export function KnowledgeBaseContent({ projectName, onBack }: KnowledgeBaseConte
                 <div className="flex items-start justify-between">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-blue-500 text-white">Decision</Badge>
+                      <Badge className="bg-category-7 text-white">Decision</Badge>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock size={12} />
                         <span>2 weeks ago</span>

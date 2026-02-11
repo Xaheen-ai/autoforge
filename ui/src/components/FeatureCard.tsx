@@ -16,13 +16,13 @@ interface FeatureCardProps {
 // Generate consistent color for category
 function getCategoryColor(category: string): string {
   const colors = [
-    'bg-pink-500',
-    'bg-cyan-500',
-    'bg-green-500',
-    'bg-yellow-500',
-    'bg-orange-500',
-    'bg-purple-500',
-    'bg-blue-500',
+    'bg-category-1',
+    'bg-category-2',
+    'bg-category-3',
+    'bg-category-4',
+    'bg-category-5',
+    'bg-category-6',
+    'bg-category-7',
   ]
 
   let hash = 0
@@ -42,11 +42,11 @@ export function FeatureCard({ feature, onClick, isInProgress, allFeatures = [], 
     <Card
       onClick={onClick}
       className={`
-        cursor-pointer transition-all hover:border-primary py-3
+        cursor-pointer transition-all hover:border-primary hover:shadow-md hover:-translate-y-0.5 py-3
         ${isInProgress ? 'animate-pulse' : ''}
         ${feature.passes ? 'border-primary/50' : ''}
         ${isBlocked && !feature.passes ? 'border-destructive/50 opacity-80' : ''}
-        ${hasActiveAgent ? 'ring-2 ring-primary ring-offset-2' : ''}
+        ${hasActiveAgent ? 'ring-2 ring-primary ring-offset-2 shadow-[var(--glow-primary-sm)]' : ''}
       `}
     >
       <CardContent className="p-4 space-y-3">

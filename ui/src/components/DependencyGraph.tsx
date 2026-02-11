@@ -73,7 +73,7 @@ class GraphErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryStat
       return (
         <div className="h-full w-full flex items-center justify-center bg-muted">
           <div className="text-center p-6">
-            <AlertTriangle size={48} className="mx-auto mb-4 text-yellow-500" />
+            <AlertTriangle size={48} className="mx-auto mb-4 text-warning" />
             <div className="text-foreground font-bold mb-2">Graph rendering error</div>
             <div className="text-sm text-muted-foreground mb-4">
               The dependency graph encountered an issue.
@@ -94,17 +94,17 @@ class GraphErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryStat
 // Custom node component
 function FeatureNode({ data }: { data: GraphNode & { onClick?: () => void; agent?: NodeAgentInfo } }) {
   const statusColors = {
-    pending: 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700',
-    in_progress: 'bg-cyan-100 border-cyan-300 dark:bg-cyan-900/30 dark:border-cyan-700',
-    done: 'bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-700',
-    blocked: 'bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-700',
+    pending: 'bg-warning/10 border-warning/30',
+    in_progress: 'bg-info/10 border-info/30',
+    done: 'bg-success/10 border-success/30',
+    blocked: 'bg-destructive/10 border-destructive/30',
   }
 
   const textColors = {
-    pending: 'text-yellow-900 dark:text-yellow-100',
-    in_progress: 'text-cyan-900 dark:text-cyan-100',
-    done: 'text-green-900 dark:text-green-100',
-    blocked: 'text-red-900 dark:text-red-100',
+    pending: 'text-warning',
+    in_progress: 'text-info',
+    done: 'text-success',
+    blocked: 'text-destructive',
   }
 
   const StatusIcon = () => {
@@ -367,19 +367,19 @@ function DependencyGraphInner({ graphData, onNodeClick, activeAgents = [] }: Dep
           <div className="text-xs font-bold mb-2">Status</div>
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded bg-yellow-400 border border-yellow-500" />
+              <div className="w-3 h-3 rounded bg-warning border border-warning/50" />
               <span>Pending</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded bg-cyan-400 border border-cyan-500" />
+              <div className="w-3 h-3 rounded bg-info border border-info/50" />
               <span>In Progress</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded bg-green-400 border border-green-500" />
+              <div className="w-3 h-3 rounded bg-success border border-success/50" />
               <span>Done</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded bg-red-100 border border-red-400" />
+              <div className="w-3 h-3 rounded bg-destructive/20 border border-destructive/50" />
               <span>Blocked</span>
             </div>
           </div>
