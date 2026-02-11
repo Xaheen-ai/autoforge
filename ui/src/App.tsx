@@ -291,6 +291,7 @@ function App() {
           onOpenRoadmap={() => setContentView('roadmap')}
           onOpenProjectContext={() => setContentView('context')}
           onOpenKnowledge={() => setContentView('knowledge')}
+          onOpenKanban={() => setContentView('kanban')}
           onOpenConvexInit={() => setShowConvexInit(true)}
           onOpenPromptsEditor={() => setContentView('prompts')}
           activeView={contentView}
@@ -307,7 +308,22 @@ function App() {
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Projects</span>
                   <span className="text-muted-foreground">/</span>
-                  <h2 className="font-display font-bold text-base tracking-tight">{selectedProject}</h2>
+                  {contentView !== 'kanban' ? (
+                    <>
+                      <button
+                        onClick={() => setContentView('kanban')}
+                        className="font-display font-bold text-base tracking-tight hover:text-primary transition-colors cursor-pointer"
+                      >
+                        {selectedProject}
+                      </button>
+                      <span className="text-muted-foreground">/</span>
+                      <span className="font-display font-bold text-base tracking-tight">
+                        {{ ideation: 'Ideation', roadmap: 'Roadmap', knowledge: 'Knowledge Base', prompts: 'Prompts', context: 'Project Context' }[contentView]}
+                      </span>
+                    </>
+                  ) : (
+                    <h2 className="font-display font-bold text-base tracking-tight">{selectedProject}</h2>
+                  )}
                 </div>
 
                 {/* Connection Indicator */}
@@ -490,15 +506,15 @@ function App() {
 
                 {/* Content Area - Render based on contentView */}
                 {contentView === 'ideation' && selectedProject ? (
-                  <IdeationContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                  <IdeationContent projectName={selectedProject} />
                 ) : contentView === 'roadmap' && selectedProject ? (
-                  <RoadmapContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                  <RoadmapContent projectName={selectedProject} />
                 ) : contentView === 'context' && selectedProject ? (
-                  <ProjectContextContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                  <ProjectContextContent projectName={selectedProject} />
                 ) : contentView === 'knowledge' && selectedProject ? (
-                  <KnowledgeBaseContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                  <KnowledgeBaseContent projectName={selectedProject} />
                 ) : contentView === 'prompts' && selectedProject ? (
-                  <PromptsContent projectName={selectedProject} onBack={() => setContentView('kanban')} />
+                  <PromptsContent projectName={selectedProject} />
                 ) : viewMode === 'kanban' ? (
                   <KanbanBoard
                     features={features}

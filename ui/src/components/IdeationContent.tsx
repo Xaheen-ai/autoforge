@@ -1,4 +1,4 @@
-import { Lightbulb, Sparkles, ArrowLeft, Filter, Save, Trash2, Plus } from 'lucide-react'
+import { Lightbulb, Sparkles, Filter, Save, Trash2, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -16,10 +16,9 @@ import { useCreateFeature } from '@/hooks/useProjects'
 
 interface IdeationContentProps {
     projectName: string
-    onBack: () => void
 }
 
-export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
+export function IdeationContent({ projectName }: IdeationContentProps) {
     const [activeTab, setActiveTab] = useState<'generated' | 'saved'>('generated')
     const [categoryFilter, setCategoryFilter] = useState<string>('all')
     const [priorityFilter, setPriorityFilter] = useState<string>('all')
@@ -87,41 +86,28 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
     }
 
     return (
-        <div className="h-full overflow-auto">
-            <div className="max-w-7xl mx-auto p-8 space-y-8">
-                {/* Header */}
-                <div className="space-y-4">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onBack}
-                        className="mb-2"
-                    >
-                        <ArrowLeft className="mr-2" size={16} />
-                        Back to Kanban
-                    </Button>
-
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-category-4/10 rounded-xl flex items-center justify-center">
-                                    <Lightbulb className="text-category-4" size={24} />
-                                </div>
-                                <div>
-                                    <h1 className="text-3xl font-bold tracking-tight">Ideation</h1>
-                                    <p className="text-muted-foreground">
-                                        AI-powered improvement suggestions for {projectName}
-                                    </p>
-                                </div>
-                            </div>
+        <>
+            {/* Header */}
+            <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-category-4/10 rounded-xl flex items-center justify-center">
+                            <Lightbulb className="text-category-4" size={24} />
                         </div>
-
-                        <Button size="lg" onClick={() => generateIdeas()} disabled={isGenerating}>
-                            <Sparkles className="mr-2" size={20} />
-                            {isGenerating ? 'Generating...' : 'Generate Ideas'}
-                        </Button>
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight">Ideation</h1>
+                            <p className="text-muted-foreground">
+                                AI-powered improvement suggestions for {projectName}
+                            </p>
+                        </div>
                     </div>
                 </div>
+
+                <Button size="lg" onClick={() => generateIdeas()} disabled={isGenerating} className="hover:shadow-glow-primary-sm transition-shadow">
+                    <Sparkles className="mr-2" size={20} />
+                    {isGenerating ? 'Generating...' : 'Generate Ideas'}
+                </Button>
+            </div>
 
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
@@ -169,13 +155,13 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                         {filteredGeneratedIdeas.length === 0 ? (
                             <Card className="border-dashed">
                                 <CardContent className="flex flex-col items-center justify-center py-16">
-                                    <div className="w-16 h-16 bg-category-4/10 rounded-full flex items-center justify-center mb-4">
-                                        <Sparkles size={32} className="text-category-4" />
+                                    <div className="w-24 h-24 bg-gradient-to-br from-category-4/15 to-category-4/5 rounded-full flex items-center justify-center mb-6 animate-pulse ring-1 ring-category-4/10">
+                                        <Sparkles size={44} className="text-category-4" />
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">
+                                    <h3 className="text-2xl font-semibold mb-3 animate-slide-up-fade opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
                                         {generatedIdeas.length === 0 ? 'No Ideas Generated Yet' : 'No Ideas Match Filters'}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
+                                    <p className="text-sm text-muted-foreground text-center max-w-md mb-6 animate-slide-up-fade opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
                                         {generatedIdeas.length === 0
                                             ? 'Click "Generate Ideas" to let AI analyze your codebase and suggest improvements across features, refactors, optimizations, and bug fixes.'
                                             : 'Try adjusting your filters to see more ideas.'}
@@ -189,8 +175,8 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            filteredGeneratedIdeas.map((idea) => (
-                                <Card key={idea.id} className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                            filteredGeneratedIdeas.map((idea, index) => (
+                                <Card key={idea.id} className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-slide-up-fade opacity-0" style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'forwards' }}>
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 space-y-2">
@@ -250,13 +236,13 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                         {filteredSavedIdeas.length === 0 ? (
                             <Card className="border-dashed">
                                 <CardContent className="flex flex-col items-center justify-center py-16">
-                                    <div className="w-16 h-16 bg-category-7/10 rounded-full flex items-center justify-center mb-4">
-                                        <Save size={32} className="text-category-7" />
+                                    <div className="w-24 h-24 bg-gradient-to-br from-category-7/15 to-category-7/5 rounded-full flex items-center justify-center mb-6 animate-pulse ring-1 ring-category-7/10">
+                                        <Save size={44} className="text-category-7" />
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">
+                                    <h3 className="text-2xl font-semibold mb-3 animate-slide-up-fade opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
                                         {savedIdeas.length === 0 ? 'No Saved Ideas' : 'No Ideas Match Filters'}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground text-center max-w-md">
+                                    <p className="text-sm text-muted-foreground text-center max-w-md animate-slide-up-fade opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
                                         {savedIdeas.length === 0
                                             ? 'Save ideas from the Generated tab to keep track of improvements you want to implement.'
                                             : 'Try adjusting your filters to see more ideas.'}
@@ -264,8 +250,8 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            filteredSavedIdeas.map((idea) => (
-                                <Card key={idea.id} className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                            filteredSavedIdeas.map((idea, index) => (
+                                <Card key={idea.id} className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 animate-slide-up-fade opacity-0" style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'forwards' }}>
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 space-y-2">
@@ -313,7 +299,6 @@ export function IdeationContent({ projectName, onBack }: IdeationContentProps) {
                         )}
                     </TabsContent>
                 </Tabs>
-            </div>
-        </div>
+        </>
     )
 }

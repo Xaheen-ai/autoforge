@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FileText, Code, Wand2, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Sparkles } from 'lucide-react'
+import { FileText, Code, Wand2, Loader2, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getProjectPrompts, updateProjectPrompts } from '../lib/api'
 import { Button } from '@/components/ui/button'
@@ -11,12 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 interface PromptsContentProps {
     projectName: string
-    onBack: () => void
 }
 
 type PromptType = 'app_spec' | 'initializer_prompt' | 'coding_prompt'
 
-export function PromptsContent({ projectName, onBack }: PromptsContentProps) {
+export function PromptsContent({ projectName }: PromptsContentProps) {
     const [selectedPrompt, setSelectedPrompt] = useState<PromptType>('app_spec')
     const [editedContent, setEditedContent] = useState<Record<PromptType, string>>({
         app_spec: '',
@@ -100,24 +99,22 @@ export function PromptsContent({ projectName, onBack }: PromptsContentProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <>
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-category-5/10 rounded-xl flex items-center justify-center">
-                        <Sparkles className="text-category-5" size={24} />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Prompts</h1>
-                        <p className="text-muted-foreground">
-                            Customize AI prompts for project initialization and feature development
-                        </p>
+            <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-category-5/10 rounded-xl flex items-center justify-center">
+                            <Sparkles className="text-category-5" size={24} />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight">Prompts</h1>
+                            <p className="text-muted-foreground">
+                                Customize AI prompts for project initialization and feature development
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <Button variant="outline" onClick={onBack}>
-                    <ArrowLeft size={16} className="mr-2" />
-                    Back to Kanban
-                </Button>
             </div>
 
             {/* Loading State */}
@@ -251,6 +248,6 @@ export function PromptsContent({ projectName, onBack }: PromptsContentProps) {
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </>
     )
 }
